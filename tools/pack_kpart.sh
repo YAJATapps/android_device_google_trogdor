@@ -25,8 +25,9 @@ SIGNPRIVATE="$SCRIPT_DIR/devkeys/kernel_data_key.vbprivk"
 echo "--> Compressing kernel Image with LZ4..."
 "$LZ4" -9 -f "$PRODUCT_OUT/kernel" "$WORK_DIR/Image.lz4"
 
-# 2. Copy DTBs
+# 2. Copy DTBs and Ramdisk
 cp "$DTS_DIR"/sc7180-trogdor-wormdingler*.dtb "$WORK_DIR/"
+cp "$PRODUCT_OUT/ramdisk.img" "$WORK_DIR/ramdisk.img"
 
 # 3. Create cmdline
 echo "earlycon firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 clk_ignore_unused pd_ignore_unused qcom_geni_serial.con_enabled=1 console=tty0 console=ttyMSM0,115200n8 vt.global_cursor_default=0 androidboot.boot_devices=soc@0/7c4000.mmc androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
@@ -49,6 +50,18 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             compression = "lz4";
             load = <0>;
             entry = <0>;
+            hash {
+                algo = "sha1";
+            };
+        };
+        ramdisk {
+            description = "Android First-Stage Ramdisk";
+            data = /incbin/("ramdisk.img");
+            type = "ramdisk";
+            arch = "arm64";
+            os = "linux";
+            compression = "gzip";
+            load = <0>;
             hash {
                 algo = "sha1";
             };
@@ -100,21 +113,25 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
         conf-1 {
             description = "Lenovo Chromebook Duet 3 (BOE panel)";
             kernel = "kernel";
+            ramdisk = "ramdisk";
             fdt = "fdt-1";
         };
         conf-2 {
             description = "Lenovo Chromebook Duet 3 (BOE panel + RT5682S)";
             kernel = "kernel";
+            ramdisk = "ramdisk";
             fdt = "fdt-2";
         };
         conf-3 {
             description = "Lenovo Chromebook Duet 3 (Innolux panel)";
             kernel = "kernel";
+            ramdisk = "ramdisk";
             fdt = "fdt-3";
         };
         conf-4 {
             description = "Lenovo Chromebook Duet 3 (Innolux panel + RT5682S)";
             kernel = "kernel";
+            ramdisk = "ramdisk";
             fdt = "fdt-4";
         };
     };
