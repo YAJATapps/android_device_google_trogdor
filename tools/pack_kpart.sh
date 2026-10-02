@@ -21,9 +21,9 @@ DTC="$BUILD_TOP/out/host/linux-x86/bin/dtc"
 KEYBLOCK="$SCRIPT_DIR/devkeys/kernel.keyblock"
 SIGNPRIVATE="$SCRIPT_DIR/devkeys/kernel_data_key.vbprivk"
 
-# 1. Compress raw Kernel Image with LZMA (required by Depthcharge arm64 trampoline)
-echo "--> Compressing kernel Image with LZMA..."
-lzma -9 -c "$PRODUCT_OUT/kernel" > "$WORK_DIR/Image.lzma"
+# 1. Compress raw Kernel Image with LZ4 (required by Depthcharge boot64)
+echo "--> Compressing kernel Image with LZ4..."
+"$LZ4" -9 -f "$PRODUCT_OUT/kernel" "$WORK_DIR/Image.lz4"
 
 # 2. Copy all Trogdor board DTBs (all 47 SKUs/variants) and Ramdisk
 echo "--> Copying all Trogdor device trees and ramdisk..."
@@ -50,11 +50,11 @@ lines = [
     '    images {',
     '        kernel-1 {',
     '            description = "unavailable";',
-    '            data = /incbin/("Image.lzma");',
+    '            data = /incbin/("Image.lz4");',
     '            type = "kernel_noload";',
     '            arch = "arm64";',
     '            os = "linux";',
-    '            compression = "lzma";',
+    '            compression = "lz4";',
     '            load = <0x0>;',
     '            entry = <0x0>;',
     '            hash {',
@@ -65,6 +65,7 @@ lines = [
     '            type = "ramdisk";',
     '            arch = "arm64";',
     '            os = "linux";',
+    '            compression = "none";',
     '            data = /incbin/("ramdisk.img");',
     '            hash {',
     '                algo = "crc32";',
