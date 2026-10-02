@@ -35,10 +35,36 @@ echo "earlycon firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/
 
 # 4. Generate ITS description with CRC32 hashes matching Depthcharge & postmarketOS specifications
 echo "--> Generating FIT ITS description for all $(ls "$WORK_DIR"/sc7180-trogdor*.dtb | wc -l) board variants..."
-python3 - << PYEOF
-import glob, os
+WORK_DIR="$WORK_DIR" python3 - << 'PYEOF'
+import glob, os, struct
 
-work_dir = "$WORK_DIR"
+def get_root_compat(dtb_path):
+    with open(dtb_path, 'rb') as f:
+        data = f.read()
+    magic, totalsize, off_struct, off_strings = struct.unpack_from('>IIII', data, 0)
+    p = off_struct
+    token = struct.unpack_from('>I', data, p)[0]
+    p += 4
+    while data[p] != 0:
+        p += 1
+    p = (p + 4) & ~3
+    while p < len(data):
+        token = struct.unpack_from('>I', data, p)[0]
+        p += 4
+        if token == 3: # FDT_PROP
+            val_len, name_off = struct.unpack_from('>II', data, p)
+            p += 8
+            val_bytes = data[p : p + val_len]
+            p = (p + val_len + 3) & ~3
+            name_end = data.find(b'\0', off_strings + name_off)
+            name = data[off_strings + name_off : name_end].decode('ascii')
+            if name == 'compatible':
+                return [s.decode('utf-8') for s in val_bytes.rstrip(b'\0').split(b'\0') if s]
+        elif token in (1, 2):
+            break
+    return []
+
+work_dir = os.environ.get("WORK_DIR", ".")
 dtbs = sorted(glob.glob(f"{work_dir}/sc7180-trogdor*.dtb"))
 
 lines = [
@@ -88,21 +114,31 @@ for i, d in enumerate(dtbs, 1):
         '        };'
     ]
 
+# Find Wormdingler BOE SKU 1024 as preferred default
+default_conf = "conf-1"
+for i, d in enumerate(dtbs, 1):
+    base = os.path.basename(d)[:-4]
+    if base == "sc7180-trogdor-wormdingler-rev1-boe":
+        default_conf = f"conf-{i}"
+        break
+
 lines += [
     '    };',
     '    configurations {',
-    '        default = "conf-1";'
+    f'        default = "{default_conf}";'
 ]
 
 for i, d in enumerate(dtbs, 1):
     base = os.path.basename(d)[:-4]
+    compats = get_root_compat(d)
+    compat_formatted = ', '.join(f'"{c}"' for c in compats)
     lines += [
         f'        conf-{i} {{',
         f'            description = "{base}";',
         '            kernel = "kernel-1";',
-        '            loadables = "kernel-1";',
         '            ramdisk = "ramdisk-1";',
         f'            fdt = "fdt-{i}";',
+        f'            compatible = {compat_formatted};',
         '        };'
     ]
 
