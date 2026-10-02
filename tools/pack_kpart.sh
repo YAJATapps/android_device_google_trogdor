@@ -25,120 +25,94 @@ SIGNPRIVATE="$SCRIPT_DIR/devkeys/kernel_data_key.vbprivk"
 echo "--> Compressing kernel Image with LZMA..."
 lzma -9 -c "$PRODUCT_OUT/kernel" > "$WORK_DIR/Image.lzma"
 
-# 2. Copy DTBs and Ramdisk
-cp "$DTS_DIR"/sc7180-trogdor-wormdingler*.dtb "$WORK_DIR/"
+# 2. Copy all Trogdor board DTBs (all 47 SKUs/variants) and Ramdisk
+echo "--> Copying all Trogdor device trees and ramdisk..."
+cp "$DTS_DIR"/sc7180-trogdor*.dtb "$WORK_DIR/"
 cp "$PRODUCT_OUT/ramdisk.img" "$WORK_DIR/ramdisk.img"
 
-# 3. Create cmdline (support both internal eMMC and external USB booting)
-echo "earlycon firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 clk_ignore_unused pd_ignore_unused qcom_geni_serial.con_enabled=1 console=tty0 console=ttyMSM0,115200n8 vt.global_cursor_default=0 androidboot.boot_devices=soc@0/7c4000.mmc,soc@0/a6f8800.usb,any androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
+# 3. Create cmdline (with tty0 last so messages show on screen, loglevel=7 for visible boot logs)
+echo "earlycon firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 clk_ignore_unused pd_ignore_unused qcom_geni_serial.con_enabled=1 console=ttyMSM0,115200n8 console=tty0 loglevel=7 vt.global_cursor_default=0 androidboot.boot_devices=soc@0/7c4000.mmc,soc@0/a6f8800.usb,any androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
 
-# 4. Generate ITS description (matching working postmarketOS Depthcharge FIT structure)
-cat << 'EOF' > "$WORK_DIR/kernel.its"
-/dts-v1/;
+# 4. Generate ITS description with CRC32 hashes matching Depthcharge & postmarketOS specifications
+echo "--> Generating FIT ITS description for all $(ls "$WORK_DIR"/sc7180-trogdor*.dtb | wc -l) board variants..."
+python3 - << PYEOF
+import glob, os
 
-/ {
-    description = "LineageOS kernel image for Google Trogdor (Wormdingler)";
-    #address-cells = <1>;
+work_dir = "$WORK_DIR"
+dtbs = sorted(glob.glob(f"{work_dir}/sc7180-trogdor*.dtb"))
 
-    images {
-        kernel-1 {
-            description = "ARM64 Linux Kernel";
-            data = /incbin/("Image.lzma");
-            type = "kernel_noload";
-            arch = "arm64";
-            os = "linux";
-            compression = "lzma";
-            load = <0x0>;
-            entry = <0x0>;
-            hash {
-                algo = "sha1";
-            };
-        };
-        ramdisk-1 {
-            description = "Android First-Stage Ramdisk";
-            data = /incbin/("ramdisk.img");
-            type = "ramdisk";
-            arch = "arm64";
-            os = "linux";
-            hash {
-                algo = "sha1";
-            };
-        };
-        fdt-1 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe";
-            data = /incbin/("sc7180-trogdor-wormdingler-rev1-boe.dtb");
-            type = "flat_dt";
-            arch = "arm64";
-            compression = "none";
-            hash {
-                algo = "sha1";
-            };
-        };
-        fdt-2 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe-rt5682s";
-            data = /incbin/("sc7180-trogdor-wormdingler-rev1-boe-rt5682s.dtb");
-            type = "flat_dt";
-            arch = "arm64";
-            compression = "none";
-            hash {
-                algo = "sha1";
-            };
-        };
-        fdt-3 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx";
-            data = /incbin/("sc7180-trogdor-wormdingler-rev1-inx.dtb");
-            type = "flat_dt";
-            arch = "arm64";
-            compression = "none";
-            hash {
-                algo = "sha1";
-            };
-        };
-        fdt-4 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx-rt5682s";
-            data = /incbin/("sc7180-trogdor-wormdingler-rev1-inx-rt5682s.dtb");
-            type = "flat_dt";
-            arch = "arm64";
-            compression = "none";
-            hash {
-                algo = "sha1";
-            };
-        };
-    };
+lines = [
+    '/dts-v1/;',
+    '/',
+    '{',
+    '    description = "Kernel Image image with one or more FDT blobs";',
+    '    #address-cells = <1>;',
+    '    images {',
+    '        kernel-1 {',
+    '            description = "unavailable";',
+    '            data = /incbin/("Image.lzma");',
+    '            type = "kernel_noload";',
+    '            arch = "arm64";',
+    '            os = "linux";',
+    '            compression = "lzma";',
+    '            load = <0x0>;',
+    '            entry = <0x0>;',
+    '            hash {',
+    '                algo = "crc32";',
+    '            };',
+    '        };',
+    '        ramdisk-1 {',
+    '            type = "ramdisk";',
+    '            arch = "arm64";',
+    '            os = "linux";',
+    '            data = /incbin/("ramdisk.img");',
+    '            hash {',
+    '                algo = "crc32";',
+    '            };',
+    '        };'
+]
 
-    configurations {
-        default = "conf-1";
-        conf-1 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe";
-            kernel = "kernel-1";
-            loadables = "kernel-1";
-            ramdisk = "ramdisk-1";
-            fdt = "fdt-1";
-        };
-        conf-2 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe-rt5682s";
-            kernel = "kernel-1";
-            loadables = "kernel-1";
-            ramdisk = "ramdisk-1";
-            fdt = "fdt-2";
-        };
-        conf-3 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx";
-            kernel = "kernel-1";
-            loadables = "kernel-1";
-            ramdisk = "ramdisk-1";
-            fdt = "fdt-3";
-        };
-        conf-4 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx-rt5682s";
-            kernel = "kernel-1";
-            loadables = "kernel-1";
-            ramdisk = "ramdisk-1";
-            fdt = "fdt-4";
-        };
-    };
-};
-EOF
+for i, d in enumerate(dtbs, 1):
+    base = os.path.basename(d)[:-4]
+    lines += [
+        f'        fdt-{i} {{',
+        f'            description = "{base}";',
+        f'            data = /incbin/("{base}.dtb");',
+        '            type = "flat_dt";',
+        '            arch = "arm64";',
+        '            compression = "none";',
+        '            hash {',
+        '                algo = "crc32";',
+        '            };',
+        '        };'
+    ]
+
+lines += [
+    '    };',
+    '    configurations {',
+    '        default = "conf-1";'
+]
+
+for i, d in enumerate(dtbs, 1):
+    base = os.path.basename(d)[:-4]
+    lines += [
+        f'        conf-{i} {{',
+        f'            description = "{base}";',
+        '            kernel = "kernel-1";',
+        '            loadables = "kernel-1";',
+        '            ramdisk = "ramdisk-1";',
+        f'            fdt = "fdt-{i}";',
+        '        };'
+    ]
+
+lines += [
+    '    };',
+    '};'
+]
+
+with open(f"{work_dir}/kernel.its", "w") as f:
+    f.write('\n'.join(lines))
+PYEOF
 
 # 5. Build FIT Image
 echo "--> Generating FIT Image (kernel.itb)..."
@@ -157,7 +131,7 @@ echo "--> Signing with vboot devkeys into $OUT_KPART..."
     --config cmdline \
     --bootloader bootloader.bin \
     --vmlinuz kernel.itb \
-    --arch arm
+    --arch aarch64
 
 # 8. Verify
 echo "--> Verifying packed image..."
