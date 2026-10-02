@@ -21,9 +21,9 @@ DTC="$BUILD_TOP/out/host/linux-x86/bin/dtc"
 KEYBLOCK="$SCRIPT_DIR/devkeys/kernel.keyblock"
 SIGNPRIVATE="$SCRIPT_DIR/devkeys/kernel_data_key.vbprivk"
 
-# 1. Copy raw Kernel Image
-echo "--> Preparing uncompressed kernel Image..."
-cp "$PRODUCT_OUT/kernel" "$WORK_DIR/Image"
+# 1. Compress raw Kernel Image with LZMA (required by Depthcharge arm64 trampoline)
+echo "--> Compressing kernel Image with LZMA..."
+lzma -9 -c "$PRODUCT_OUT/kernel" > "$WORK_DIR/Image.lzma"
 
 # 2. Copy DTBs and Ramdisk
 cp "$DTS_DIR"/sc7180-trogdor-wormdingler*.dtb "$WORK_DIR/"
@@ -32,7 +32,7 @@ cp "$PRODUCT_OUT/ramdisk.img" "$WORK_DIR/ramdisk.img"
 # 3. Create cmdline (support both internal eMMC and external USB booting)
 echo "earlycon firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 clk_ignore_unused pd_ignore_unused qcom_geni_serial.con_enabled=1 console=tty0 console=ttyMSM0,115200n8 vt.global_cursor_default=0 androidboot.boot_devices=soc@0/7c4000.mmc,soc@0/a6f8800.usb,any androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
 
-# 4. Generate ITS description
+# 4. Generate ITS description (matching working postmarketOS Depthcharge FIT structure)
 cat << 'EOF' > "$WORK_DIR/kernel.its"
 /dts-v1/;
 
@@ -41,33 +41,31 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
     #address-cells = <1>;
 
     images {
-        kernel {
+        kernel-1 {
             description = "ARM64 Linux Kernel";
-            data = /incbin/("Image");
+            data = /incbin/("Image.lzma");
             type = "kernel_noload";
             arch = "arm64";
             os = "linux";
-            compression = "none";
-            load = <0>;
-            entry = <0>;
+            compression = "lzma";
+            load = <0x0>;
+            entry = <0x0>;
             hash {
                 algo = "sha1";
             };
         };
-        ramdisk {
+        ramdisk-1 {
             description = "Android First-Stage Ramdisk";
             data = /incbin/("ramdisk.img");
             type = "ramdisk";
             arch = "arm64";
             os = "linux";
-            compression = "none";
-            load = <0>;
             hash {
                 algo = "sha1";
             };
         };
         fdt-1 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe.dtb";
+            description = "sc7180-trogdor-wormdingler-rev1-boe";
             data = /incbin/("sc7180-trogdor-wormdingler-rev1-boe.dtb");
             type = "flat_dt";
             arch = "arm64";
@@ -77,7 +75,7 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             };
         };
         fdt-2 {
-            description = "sc7180-trogdor-wormdingler-rev1-boe-rt5682s.dtb";
+            description = "sc7180-trogdor-wormdingler-rev1-boe-rt5682s";
             data = /incbin/("sc7180-trogdor-wormdingler-rev1-boe-rt5682s.dtb");
             type = "flat_dt";
             arch = "arm64";
@@ -87,7 +85,7 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             };
         };
         fdt-3 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx.dtb";
+            description = "sc7180-trogdor-wormdingler-rev1-inx";
             data = /incbin/("sc7180-trogdor-wormdingler-rev1-inx.dtb");
             type = "flat_dt";
             arch = "arm64";
@@ -97,7 +95,7 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             };
         };
         fdt-4 {
-            description = "sc7180-trogdor-wormdingler-rev1-inx-rt5682s.dtb";
+            description = "sc7180-trogdor-wormdingler-rev1-inx-rt5682s";
             data = /incbin/("sc7180-trogdor-wormdingler-rev1-inx-rt5682s.dtb");
             type = "flat_dt";
             arch = "arm64";
@@ -111,32 +109,32 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
     configurations {
         default = "conf-1";
         conf-1 {
-            description = "Lenovo Chromebook Duet 3 (BOE panel)";
-            kernel = "kernel";
-            ramdisk = "ramdisk";
+            description = "sc7180-trogdor-wormdingler-rev1-boe";
+            kernel = "kernel-1";
+            loadables = "kernel-1";
+            ramdisk = "ramdisk-1";
             fdt = "fdt-1";
-            compatible = "google,wormdingler-sku1024", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-2 {
-            description = "Lenovo Chromebook Duet 3 (BOE panel + RT5682S)";
-            kernel = "kernel";
-            ramdisk = "ramdisk";
+            description = "sc7180-trogdor-wormdingler-rev1-boe-rt5682s";
+            kernel = "kernel-1";
+            loadables = "kernel-1";
+            ramdisk = "ramdisk-1";
             fdt = "fdt-2";
-            compatible = "google,wormdingler-sku1025", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-3 {
-            description = "Lenovo Chromebook Duet 3 (Innolux panel)";
-            kernel = "kernel";
-            ramdisk = "ramdisk";
+            description = "sc7180-trogdor-wormdingler-rev1-inx";
+            kernel = "kernel-1";
+            loadables = "kernel-1";
+            ramdisk = "ramdisk-1";
             fdt = "fdt-3";
-            compatible = "google,wormdingler-sku0", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-4 {
-            description = "Lenovo Chromebook Duet 3 (Innolux panel + RT5682S)";
-            kernel = "kernel";
-            ramdisk = "ramdisk";
+            description = "sc7180-trogdor-wormdingler-rev1-inx-rt5682s";
+            kernel = "kernel-1";
+            loadables = "kernel-1";
+            ramdisk = "ramdisk-1";
             fdt = "fdt-4";
-            compatible = "google,wormdingler-sku1", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
     };
 };
