@@ -115,24 +115,28 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             kernel = "kernel";
             ramdisk = "ramdisk";
             fdt = "fdt-1";
+            compatible = "google,wormdingler-sku1024", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-2 {
             description = "Lenovo Chromebook Duet 3 (BOE panel + RT5682S)";
             kernel = "kernel";
             ramdisk = "ramdisk";
             fdt = "fdt-2";
+            compatible = "google,wormdingler-sku1025", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-3 {
             description = "Lenovo Chromebook Duet 3 (Innolux panel)";
             kernel = "kernel";
             ramdisk = "ramdisk";
             fdt = "fdt-3";
+            compatible = "google,wormdingler-sku0", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
         conf-4 {
             description = "Lenovo Chromebook Duet 3 (Innolux panel + RT5682S)";
             kernel = "kernel";
             ramdisk = "ramdisk";
             fdt = "fdt-4";
+            compatible = "google,wormdingler-sku1", "google,wormdingler", "google,trogdor", "qcom,sc7180";
         };
     };
 };
