@@ -21,9 +21,9 @@ DTC="$BUILD_TOP/out/host/linux-x86/bin/dtc"
 KEYBLOCK="$SCRIPT_DIR/devkeys/kernel.keyblock"
 SIGNPRIVATE="$SCRIPT_DIR/devkeys/kernel_data_key.vbprivk"
 
-# 1. Compress Kernel
-echo "--> Compressing kernel Image with LZ4..."
-"$LZ4" -9 -f "$PRODUCT_OUT/kernel" "$WORK_DIR/Image.lz4"
+# 1. Copy raw Kernel Image
+echo "--> Preparing uncompressed kernel Image..."
+cp "$PRODUCT_OUT/kernel" "$WORK_DIR/Image"
 
 # 2. Copy DTBs and Ramdisk
 cp "$DTS_DIR"/sc7180-trogdor-wormdingler*.dtb "$WORK_DIR/"
@@ -43,11 +43,11 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
     images {
         kernel {
             description = "ARM64 Linux Kernel";
-            data = /incbin/("Image.lz4");
+            data = /incbin/("Image");
             type = "kernel_noload";
             arch = "arm64";
             os = "linux";
-            compression = "lz4";
+            compression = "none";
             load = <0>;
             entry = <0>;
             hash {
@@ -60,7 +60,7 @@ cat << 'EOF' > "$WORK_DIR/kernel.its"
             type = "ramdisk";
             arch = "arm64";
             os = "linux";
-            compression = "gzip";
+            compression = "none";
             load = <0>;
             hash {
                 algo = "sha1";
