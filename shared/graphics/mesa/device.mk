@@ -15,7 +15,7 @@
 #
 
 # GLES
-PRODUCT_PACKAGES := \
+PRODUCT_PACKAGES += \
     libGLES_mesa \
     libEGL_mesa \
     libGLESv1_CM_mesa \
@@ -29,7 +29,7 @@ ifeq ($(TARGET_BUILD_MESA), true)
        external/mesa3d
 endif
 
-PRODUCT_PROPERTY_OVERRIDES := \
+PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=160 \
     ro.hardware.egl=mesa \
     ro.opengles.version=196608 \
