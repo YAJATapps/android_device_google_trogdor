@@ -30,26 +30,17 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     btrtl.ko \
     btusb.ko \
     cros-ec-sensors-core.ko \
-    cros-ec-typec.ko \
     cros_ec_baro.ko \
     cros_ec_chardev.ko \
     cros_ec_light_prox.ko \
-    cros_ec_rpmsg.ko \
     cros_ec_sensors.ko \
-    cros_ec_ucsi.ko \
-    cros_kbd_led_backlight.ko \
-    cros_typec_switch.ko \
     fastrpc.ko \
     gpio-wcd934x.ko \
     i2c-qcom-cci.ko \
     leds-cros_ec.ko \
     leds-qcom-lpg.ko \
-    nvmem_qcom-spmi-sdam.ko \
     phy-qcom-edp.ko \
     pinctrl-lpass-lpi.ko \
-    pmic_glink.ko \
-    pmic_glink_altmode.ko \
-    pwm-cros-ec.ko \
     pwrseq-qcom-wcn.ko \
     qcom-camss.ko \
     qcom-coincell.ko \
@@ -58,24 +49,11 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     qcom-spmi-adc-tm5.ko \
     qcom-spmi-adc5.ko \
     qcom-spmi-temp-alarm.ko \
-    qcom-spmi-vadc.ko \
-    qcom-wdt.ko \
-    qcom_battmgr.ko \
-    qcom_pd_mapper.ko \
-    qcom_pdr_msg.ko \
-    qcom_pil_info.ko \
-    qcom_pmic_tcpm.ko \
-    qcom_q6v5.ko \
     qcom_q6v5_adsp.ko \
-    qcom_q6v5_mss.ko \
     qcom_q6v5_pas.ko \
     qcom_stats.ko \
-    qcom_sysmon.ko \
-    qcom_usb_vbus-regulator.ko \
     qcom_wcnss_pil.ko \
-    snd-soc-core.ko \
     snd-soc-cros-ec-codec.ko \
-    snd-soc-hdmi-codec.ko \
     snd-soc-lpass-cdc-dma.ko \
     snd-soc-lpass-cpu.ko \
     snd-soc-lpass-hdmi.ko \
