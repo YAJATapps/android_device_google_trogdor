@@ -92,6 +92,12 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/ueventd.trogdor.rc:$(TARGET_COPY_OUT_VENDOR)/etc/ueventd.rc \
     frameworks/base/data/keyboards/Generic.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/trogdor.kl
 
+# GPU Firmware (early boot ramdisk)
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/firmware/qcom/a630_sqe.fw:$(TARGET_COPY_OUT_RAMDISK)/lib/firmware/qcom/a630_sqe.fw \
+    $(DEVICE_PATH)/firmware/qcom/a630_gmu.bin:$(TARGET_COPY_OUT_RAMDISK)/lib/firmware/qcom/a630_gmu.bin
+
+
 # Wi-Fi
 FORCE_USE_ANDROIDMK_FOR_WPA_CONF := true
 PRODUCT_PACKAGES += \
