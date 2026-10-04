@@ -50,7 +50,6 @@ license {
 
 subdirs = [
     "shared/utils/bdaddr",
-    "shared/utils/pd-mapper",
     "shared/utils/qrtr",
     "shared/utils/rmtfs",
     "shared/utils/tqftpserv",

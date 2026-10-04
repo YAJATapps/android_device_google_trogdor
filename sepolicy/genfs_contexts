@@ -1,4 +1,5 @@
 genfscon sysfs   /devices/platform/88f00000.memory/rmtfs					u:object_r:sysfs_rmtfs:s0
+genfscon sysfs   /devices/platform/94600000.memory/rmtfs					u:object_r:sysfs_rmtfs:s0
 genfscon sysfs   /devices/platform/88f00000.rmtfs/rmtfs						u:object_r:sysfs_rmtfs:s0
 genfscon sysfs   /devices/platform/remoteproc-adsp/remoteproc					u:object_r:sysfs_remoteproc:s0
 genfscon sysfs   /devices/platform/remoteproc-cdsp/remoteproc					u:object_r:sysfs_remoteproc:s0

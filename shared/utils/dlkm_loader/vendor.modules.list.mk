@@ -36,6 +36,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     cros_ec_sensors.ko \
     fastrpc.ko \
     gpio-wcd934x.ko \
+    hci_uart.ko \
     i2c-qcom-cci.ko \
     leds-cros_ec.ko \
     leds-qcom-lpg.ko \

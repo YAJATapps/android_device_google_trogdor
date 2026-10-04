@@ -170,7 +170,6 @@ PRODUCT_COPY_FILES += \
 
 # Qualcomm userspace services
 PRODUCT_PACKAGES += \
-    pd-mapper \
     qrtr-ns \
     qrtr-cfg \
     qrtr-lookup \

@@ -1,6 +1,12 @@
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/fsc		u:object_r:modem_block_device:s0
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/fsg		u:object_r:modem_block_device:s0
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/modemst[12]	u:object_r:modem_block_device:s0
+/dev/block/by-name/fsc						u:object_r:modem_block_device:s0
+/dev/block/by-name/fsg						u:object_r:modem_block_device:s0
+/dev/block/by-name/modemst[12]					u:object_r:modem_block_device:s0
+/dev/block/bootdevice/by-name/fsc				u:object_r:modem_block_device:s0
+/dev/block/bootdevice/by-name/fsg				u:object_r:modem_block_device:s0
+/dev/block/bootdevice/by-name/modemst[12]			u:object_r:modem_block_device:s0
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/metadata	u:object_r:metadata_block_device:s0
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/super		u:object_r:super_block_device:s0
 /dev/block/platform/soc@0/1d84000\.ufshc/by-name/userdata	u:object_r:userdata_block_device:s0
@@ -16,6 +22,7 @@
 /sys/bus/platform/drivers/qcom-q6v5-mss							u:object_r:sysfs_mss:s0
 /sys/module/qcom_q6v5_mss								u:object_r:sysfs_mss:s0
 /sys/devices/platform/88f00000.memory/rmtfs						u:object_r:sysfs_rmtfs:s0
+/sys/devices/platform/94600000.memory/rmtfs						u:object_r:sysfs_rmtfs:s0
 
 /sys/devices/platform/soc@0/4080000.remoteproc						u:object_r:sysfs_remoteproc:s0
 /sys/devices/platform/soc@0/8300000.remoteproc						u:object_r:sysfs_remoteproc:s0
@@ -50,7 +57,6 @@
 
 /vendor/bin/grep									u:object_r:vendor_toolbox_exec:s0
 /vendor/bin/ifconfig									u:object_r:vendor_toolbox_exec:s0
-/vendor/bin/pd-mapper									u:object_r:pd_mapper_exec:s0
 /vendor/bin/qrtr-cfg									u:object_r:qrtr_exec:s0
 /vendor/bin/qrtr-ns									u:object_r:qrtr_exec:s0
 /vendor/bin/rmtfs									u:object_r:rmtfs_exec:s0
