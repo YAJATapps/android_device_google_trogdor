@@ -187,7 +187,7 @@ PRODUCT_COPY_FILES += \
 $(call inherit-product, $(DEVICE_PATH)/shared/graphics/drm_hwcomposer/device.mk)
 $(call inherit-product, $(DEVICE_PATH)/shared/graphics/minigbm_msm/device.mk)
 
-TARGET_BUILD_MESA ?= false
+TARGET_BUILD_MESA ?= true
 ifeq ($(TARGET_BUILD_MESA), true)
 $(call inherit-product, $(DEVICE_PATH)/shared/graphics/mesa/device.mk)
 else
@@ -205,7 +205,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.print.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.print.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.host.xml \
-    frameworks/native/data/etc/android.software.opengles.deqp.level-2020-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.opengles.deqp.level.xml \
     frameworks/native/data/etc/android.software.device_admin.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.device_admin.xml \
     frameworks/native/data/etc/android.hardware.keystore.app_attest_key.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.keystore.app_attest_key.xml
 
