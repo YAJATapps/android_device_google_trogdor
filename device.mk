@@ -48,7 +48,7 @@ AB_OTA_PARTITIONS += \
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH) \
     hardware/qcom/wlan \
-    hardware/qcom/wlan/wcn6740
+    hardware/qcom/wlan/legacy
 
 # DLKM Loader
 include $(DEVICE_PATH)/shared/utils/dlkm_loader/device.mk
@@ -99,16 +99,13 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/ueventd.trogdor.rc:$(TARGET_COPY_OUT_VENDOR)/etc/ueventd.rc \
     frameworks/base/data/keyboards/Generic.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/trogdor.kl
 
-# GPU Firmware (early boot ramdisk)
-PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/firmware/qcom/a630_sqe.fw:$(TARGET_COPY_OUT_RAMDISK)/lib/firmware/qcom/a630_sqe.fw \
-    $(DEVICE_PATH)/firmware/qcom/a630_gmu.bin:$(TARGET_COPY_OUT_RAMDISK)/lib/firmware/qcom/a630_gmu.bin
-
 
 # Wi-Fi
 FORCE_USE_ANDROIDMK_FOR_WPA_CONF := true
 PRODUCT_PACKAGES += \
+    android.hardware.wifi-service \
     hostapd \
+    libcld80211 \
     libwpa_client \
     wpa_supplicant \
     wpa_supplicant.conf \
@@ -121,6 +118,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
+    frameworks/native/data/etc/android.hardware.wifi.passpoint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.passpoint.xml \
     $(DEVICE_PATH)/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf \
     $(DEVICE_PATH)/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf
 
