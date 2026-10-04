@@ -9,3 +9,7 @@ allow vendor_init kernel:system module_request;
 allow kernel sepolicy_file:file getattr;
 allow kernel system_bootstrap_lib_file:dir getattr;
 allow kernel system_bootstrap_lib_file:file getattr;
+
+allow kernel vendor_firmware_file:system firmware_load;
+
+r_dir_file(kernel, vendor_firmware_file)
