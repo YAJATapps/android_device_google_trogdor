@@ -231,6 +231,14 @@ PRODUCT_HOST_PACKAGES := \
 PRODUCT_MAX_PAGE_SIZE_SUPPORTED := 16384
 PRODUCT_NO_BIONIC_PAGE_SIZE_MACRO := true
 
+# Default timezone and locale
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.timezone=America/New_York \
+    persist.sys.timezone_confidence=100 \
+    persist.sys.country=US \
+    persist.sys.language=en \
+    ro.product.locale=en-US
+
 # Product properties
 TARGET_PRODUCT_PROP := $(DEVICE_PATH)/product.prop
 
