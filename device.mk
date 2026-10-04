@@ -53,7 +53,8 @@ PRODUCT_SOONG_NAMESPACES += \
 # DLKM Loader
 include $(DEVICE_PATH)/shared/utils/dlkm_loader/device.mk
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc
+    $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc \
+    $(DEVICE_PATH)/idc/Google_Inc._Hammer.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Google_Inc._Hammer.idc
 
 # BootControl HAL
 PRODUCT_PACKAGES += \

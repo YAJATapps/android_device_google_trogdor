@@ -71,4 +71,18 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     snd-soc-rt5682s.ko \
     snd-soc-sc7180.ko \
     snd-soc-simple-amplifier.ko \
-    snd-soc-wsa881x.ko
+    snd-soc-wsa881x.ko \
+    atmel_mxt_ts.ko \
+    cros_usbpd-charger.ko \
+    cros_usbpd_logger.ko \
+    edt-ft5x06.ko \
+    elan_i2c.ko \
+    elants_i2c.ko \
+    goodix_ts.ko \
+    hid-google-hammer.ko \
+    hid-multitouch.ko \
+    hid-vivaldi.ko \
+    hid-vivaldi-common.ko \
+    i2c-hid.ko \
+    i2c-hid-of.ko \
+    i2c-hid-of-goodix.ko
