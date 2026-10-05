@@ -72,7 +72,7 @@ PRODUCT_PACKAGES += \
     android.hardware.power-service.example \
     android.hardware.power.stats-service.example \
     com.android.hardware.thermal \
-    com.google.cf.health \
+    android.hardware.health-service.example \
     suspend_blocker
 
 # Security HALs (KeyMint & Gatekeeper software implementations)
