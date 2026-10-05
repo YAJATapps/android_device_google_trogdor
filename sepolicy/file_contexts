@@ -50,9 +50,11 @@
 /sys/firmware/devicetree/base/compatible						u:object_r:sysfs_dt_compatible:s0
 
 /data/vendor/tmp(/.*)?									u:object_r:tqftpserv_vendor_data_file:s0
+/data/vendor/rmtfs(/.*)?								u:object_r:rmtfs_vendor_data_file:s0
 /data/vendor/readwrite(/.*)?								u:object_r:tqftpserv_vendor_data_file:s0
 /data/vendor/readonly(/.*)?								u:object_r:tqftpserv_vendor_data_file:s0
 
+/vendor/bin/efs-loader									u:object_r:efs_loader_exec:s0
 /system/bin/tinymix									u:object_r:tinymix_exec:s0
 
 /vendor/bin/grep									u:object_r:vendor_toolbox_exec:s0

@@ -8,6 +8,8 @@ allow rmtfs kmsg_debug_device:chr_file rw_file_perms;
 allow rmtfs kmsg_device:chr_file rw_file_perms;
 allow rmtfs modem_block_device:blk_file { open read getattr };
 allow rmtfs rmtfs_device:chr_file { open read write };
+allow rmtfs rmtfs_vendor_data_file:dir { getattr open read search };
+allow rmtfs rmtfs_vendor_data_file:file { getattr open read };
 allow rmtfs self:capability net_admin;
 allow rmtfs self:qipcrtr_socket { bind create getattr read setopt write };
 allow rmtfs sysfs_mss:dir { open read search };

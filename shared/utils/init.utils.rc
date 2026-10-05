@@ -19,7 +19,15 @@ service vendor.tqftpserv /vendor/bin/tqftpserv
     stdio_to_kmsg
     disabled
 
-service vendor.rmtfs /vendor/bin/rmtfs -o /dev/block/by-name -P -r -s
+service vendor.efs-loader /vendor/bin/efs-loader
+    class core
+    user root
+    group system
+    stdio_to_kmsg
+    disabled
+    oneshot
+
+service vendor.rmtfs /vendor/bin/rmtfs -r -s -o /data/vendor/rmtfs
     class core
     user root
     group system
@@ -59,6 +67,8 @@ on post-fs && property:vendor.hw=sm8550hdk
 
 on post-fs-data
     mkdir /data/vendor 0771 root system
+    mkdir /data/vendor/rmtfs 0770 root system
+    restorecon_recursive /data/vendor/rmtfs
     mkdir /data/vendor/tmp 0771 root system
     mkdir /data/vendor/readwrite 0771 root system
     mkdir /data/vendor/readonly 0771 root system
@@ -66,6 +76,7 @@ on post-fs-data
     mkdir /data/vendor/readonly/firmware/image 0771 root system
     write /sys/class/firmware/timeout 1
     start vendor.tqftpserv
+    exec_start vendor.efs-loader
     start vendor.rmtfs
 
 on shutdown

@@ -113,6 +113,7 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=wlan0 \
+    wifi.direct.interface=p2p-dev-wlan0 \
     wifi.supplicant_scan_interval=15
 
 PRODUCT_COPY_FILES += \
@@ -173,6 +174,7 @@ PRODUCT_PACKAGES += \
     qrtr-ns \
     qrtr-cfg \
     qrtr-lookup \
+    efs-loader \
     rmtfs \
     tqftpserv
 

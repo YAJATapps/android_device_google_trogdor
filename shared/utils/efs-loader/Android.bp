@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["device_google_trogdor_efs_loader_license"],
+}
+
+license {
+    name: "device_google_trogdor_efs_loader_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-GPL-3.0-or-later"],
+    license_text: ["LICENSE"],
+}
+
+sh_binary {
+    name: "efs-loader",
+    vendor: true,
+    src: "efs-loader",
+    filename_from_src: true,
+}

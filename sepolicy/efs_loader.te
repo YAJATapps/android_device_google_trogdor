@@ -1,0 +1,9 @@
+type efs_loader, domain;
+type efs_loader_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(efs_loader)
+
+type_transition efs_loader rmtfs_vendor_data_file:file rmtfs_vendor_data_file;
+
+allow efs_loader rmtfs_vendor_data_file:dir { add_name getattr open search write };
+allow efs_loader rmtfs_vendor_data_file:file { create getattr open setattr unlink write };
