@@ -54,7 +54,7 @@ PRODUCT_SOONG_NAMESPACES += \
 include $(DEVICE_PATH)/shared/utils/dlkm_loader/device.mk
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc \
-    $(DEVICE_PATH)/boot_logger.sh:$(TARGET_COPY_OUT_VENDOR)/bin/boot_logger.sh
+    $(DEVICE_PATH)/misc_setup.sh:$(TARGET_COPY_OUT_VENDOR)/bin/misc_setup.sh
 
 # IDC
 PRODUCT_COPY_FILES += \
