@@ -116,6 +116,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     wifi.direct.interface=p2p-dev-wlan0 \
     wifi.supplicant_scan_interval=15
 
+# Enable authenticated ADB over the device's Ethernet interfaces for debugging.
+PRODUCT_VENDOR_PROPERTIES += \
+    service.adb.tcp.port=5555
+
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
