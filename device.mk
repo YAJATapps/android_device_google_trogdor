@@ -75,6 +75,10 @@ PRODUCT_PACKAGES += \
     android.hardware.health-service.example \
     suspend_blocker
 
+# Lights HAL
+PRODUCT_PACKAGES += \
+    android.hardware.light-service.lineage
+
 # Security HALs (KeyMint & Gatekeeper software implementations)
 PRODUCT_PACKAGES += \
     com.android.hardware.keymint.rust_nonsecure \
