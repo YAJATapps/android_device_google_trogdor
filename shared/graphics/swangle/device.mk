@@ -29,8 +29,7 @@ PRODUCT_VENDOR_PROPERTIES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=160 \
-    ro.opengles.version=196608 \
-    persist.demo.rotationlock=1
+    ro.opengles.version=196608
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \

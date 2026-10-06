@@ -2,6 +2,8 @@ type sysfs_mss, fs_type, sysfs_type;
 type sysfs_rmtfs, fs_type, sysfs_type;
 type sysfs_remoteproc, fs_type, sysfs_type;
 type sysfs_dt_compatible, fs_type, sysfs_type;
+type sysfs_iio_devices, fs_type, sysfs_type;
+type sysfs_iio_file_ctrl, fs_type, sysfs_type;
 type dri_device, dev_type;
 type rmtfs_device, dev_type;
 type modem_block_device, dev_type;

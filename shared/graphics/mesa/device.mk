@@ -21,8 +21,7 @@
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=160 \
     ro.hardware.egl=mesa \
-    ro.opengles.version=196610 \
-    persist.demo.rotationlock=1
+    ro.opengles.version=196610
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.opengles.deqp.level-2022-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.opengles.deqp.level.xml

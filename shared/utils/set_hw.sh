@@ -3,7 +3,7 @@
 #
 # grep the device name from /proc/device-tree/compatible
 
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep trogdor`
+HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep -E 'trogdor|wormdingler'`
 if [ -n "${HW}" ]; then
     setprop vendor.hw trogdor
     setprop vendor.thermal.config thermal-trogdor.json
