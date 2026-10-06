@@ -152,6 +152,10 @@ PRODUCT_PACKAGES += \
     tinypcminfo \
     com.android.hardware.audio
 
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.hardware.audio.tinyalsa.period_count=2 \
+    ro.hardware.audio.tinyalsa.period_size_multiplier=3
+
 PRODUCT_VENDOR_PROPERTIES += media.c2.hal.selection=aidl
 
 USE_XML_AUDIO_POLICY_CONF := 1

@@ -43,10 +43,6 @@ on init
     mkdir /dev/block/bootdevice 0775 root system
     symlink /dev/block/by-name /dev/block/bootdevice/by-name
 
-on post-fs && property:vendor.hw=trogdor
-    exec - root -- /system/bin/sleep 1
-    exec - system audio -- /system/bin/tinymix "QUAT_MI2S_RX Audio Mixer MultiMedia1" 1
-
 on post-fs && property:vendor.hw=rb5
     exec - root -- /system/bin/sleep 1
     exec - system audio -- /system/bin/tinymix "TERT_MI2S_RX Audio Mixer MultiMedia1" 1
