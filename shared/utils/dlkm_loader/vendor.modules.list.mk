@@ -29,7 +29,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     btqcomsmd.ko \
     btrtl.ko \
     btusb.ko \
-    cros-ec-sensors-core.ko \
+    cros_ec_sensors_core.ko \
     cros_ec_baro.ko \
     cros_ec_chardev.ko \
     cros_ec_light_prox.ko \
