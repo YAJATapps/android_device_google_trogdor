@@ -17,6 +17,9 @@ subsystem usbmisc
 # Chrome EC motion sensors
 /dev/iio:device* 0660 system system
 /sys/bus/iio/devices/iio:device* buffer/enable 0660 system system
+/sys/bus/iio/devices/iio:device* buffer/length 0660 system system
+/sys/bus/iio/devices/iio:device* buffer/hwfifo_timeout 0660 system system
+/sys/bus/iio/devices/iio:device* buffer/watermark 0660 system system
 /sys/bus/iio/devices/iio:device* sampling_frequency 0660 system system
 /sys/bus/iio/devices/iio:device* scan_elements/in_timestamp_en 0660 system system
 /sys/bus/iio/devices/iio:device* scan_elements/in_accel_x_en 0660 system system

@@ -171,7 +171,7 @@ PRODUCT_COPY_FILES += \
 # Chrome EC IIO sensor HAL
 PRODUCT_PACKAGES += \
     android.hardware.sensors-service.multihal \
-    android.hardware.sensors@2.1-Google-IIO-Subhal
+    android.hardware.sensors@2.1-trogdor-subhal
 
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/etc/sensors/hals.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sensors/hals.conf \
