@@ -76,8 +76,6 @@ if [ "$COMPRESS_XZ" = false ]; then
 fi
 echo "============================================================"
 
-# 1. Check prerequisites
-SGDISK="$(command -v /usr/sbin/sgdisk || command -v sgdisk || true)"
 CGPT="$(command -v /usr/bin/cgpt || command -v cgpt || true)"
 
 PREREQS="mke2fs"
@@ -91,11 +89,6 @@ for tool in $PREREQS; do
         exit 1
     fi
 done
-
-if [ -z "$SGDISK" ]; then
-    echo "[-] ERROR: sgdisk not found. Please install gdisk (sudo apt install gdisk)." >&2
-    exit 1
-fi
 
 if [ -z "$CGPT" ]; then
     echo "[-] ERROR: cgpt not found. Please install cgpt (sudo apt install cgpt)." >&2
@@ -140,7 +133,7 @@ fi
 
 echo "[+] super.raw.img size: $SUPER_SIZE_BYTES bytes ($SUPER_SIZE_SECTORS sectors)"
 
-# 4. Partition Geometry Definition (512-byte sectors, 1 MB aligned)
+# 4. Partition Geometry Definition (512-byte sectors, 4 MB / 8192 sectors aligned)
 # Clean Architecture:
 #   p1: misc      (16 MB  =    32,768 sectors) -> Raw BCB block
 #   p2: KERN-A    (64 MB  =   131,072 sectors) -> ChromeOS vboot Depthcharge kernel
@@ -148,44 +141,41 @@ echo "[+] super.raw.img size: $SUPER_SIZE_BYTES bytes ($SUPER_SIZE_SECTORS secto
 #   p4: super     (dynamic sectors based on super.raw.img) -> Android OS container
 #   p5: userdata  (initial ~3.5 GB for 16 GB base image) -> Android /data
 
-P1_START=2048
+P1_START=8192
 P1_SIZE=32768
-P1_END=$(( P1_START + P1_SIZE - 1 )) # 34815
+P1_END=$(( P1_START + P1_SIZE - 1 )) # 40959
 
-P2_START=$(( P1_END + 1 )) # 34816
+P2_START=$(( P1_END + 1 )) # 40960
 P2_SIZE=131072
-P2_END=$(( P2_START + P2_SIZE - 1 )) # 165887
+P2_END=$(( P2_START + P2_SIZE - 1 )) # 172031
 
-P3_START=$(( P2_END + 1 )) # 165888
+P3_START=$(( P2_END + 1 )) # 172032
 P3_SIZE=32768
-P3_END=$(( P3_START + P3_SIZE - 1 )) # 198655
+P3_END=$(( P3_START + P3_SIZE - 1 )) # 204799
 
-P4_START=$(( P3_END + 1 )) # 198656
+P4_START=$(( P3_END + 1 )) # 204800
 P4_SIZE=$SUPER_SIZE_SECTORS
 P4_END=$(( P4_START + P4_SIZE - 1 ))
 
-# Userdata starts right after super aligned to 1MB (2048 sectors)
-P5_START=$(( (P4_END + 2048) / 2048 * 2048 ))
+# Userdata starts right after super aligned to 4MB (8192 sectors)
+P5_START=$(( (P4_END + 8192) / 8192 * 8192 ))
 # Initial image size: 15.5 GB total (~32,505,856 sectors, fits easily on any 16GB+ drive)
 TOTAL_SECTORS=32505856
 P5_END=$(( TOTAL_SECTORS - 34 )) # leave 33 sectors for secondary GPT table + 1 for header
+P5_SIZE=$(( P5_END - P5_START + 1 ))
 
 echo "[*] Creating raw disk image container ($TOTAL_SECTORS sectors / ~15.5 GB)..."
 rm -f "$RAW_IMG"
 truncate -s $(( TOTAL_SECTORS * 512 )) "$RAW_IMG"
 
-echo "[*] Writing clean GPT partition table..."
-"$SGDISK" \
-    --zap-all \
-    --new="1:${P1_START}:${P1_END}" --change-name="1:misc" --typecode="1:8300" \
-    --new="2:${P2_START}:${P2_END}" --change-name="2:KERN-A" --typecode="2:FE3A2A5D-4F32-41A7-B725-ACCC3285A309" \
-    --new="3:${P3_START}:${P3_END}" --change-name="3:metadata" --typecode="3:8300" \
-    --new="4:${P4_START}:${P4_END}" --change-name="4:super" --typecode="4:8300" \
-    --new="5:${P5_START}:${P5_END}" --change-name="5:userdata" --typecode="5:8300" \
-    "$RAW_IMG"
-
-echo "[*] Setting ChromeOS Depthcharge bootloader flags on KERN-A..."
-"$CGPT" add -i 2 -P 15 -T 15 -S 1 "$RAW_IMG"
+echo "[*] Writing ChromeOS Depthcharge GPT partition table with cgpt..."
+"$CGPT" create "$RAW_IMG"
+"$CGPT" add -i 1 -b "$P1_START" -s "$P1_SIZE" -t data -l misc "$RAW_IMG"
+"$CGPT" add -i 2 -b "$P2_START" -s "$P2_SIZE" -t kernel -l KERN-A -S 1 -T 15 -P 15 "$RAW_IMG"
+"$CGPT" boot -p -i 2 "$RAW_IMG"
+"$CGPT" add -i 3 -b "$P3_START" -s "$P3_SIZE" -t data -l metadata "$RAW_IMG"
+"$CGPT" add -i 4 -b "$P4_START" -s "$P4_SIZE" -t data -l super "$RAW_IMG"
+"$CGPT" add -i 5 -b "$P5_START" -s "$P5_SIZE" -t data -l userdata "$RAW_IMG"
 
 echo "[*] Creating formatted metadata ext4 filesystem..."
 METADATA_IMG="$WORK_DIR/metadata.img"
