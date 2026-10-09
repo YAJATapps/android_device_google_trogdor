@@ -11,7 +11,6 @@ on fs
 on post-fs
     # set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
-    exec_start misc_setup
 
 on late-fs
     mount_all /vendor/etc/fstab.${ro.hardware} --late
@@ -94,9 +93,3 @@ service suspend_blocker /vendor/bin/suspend_blocker
     group system
     user root
 
-service misc_setup /system/bin/sh /vendor/bin/misc_setup.sh
-    class core
-    user root
-    group root system
-    oneshot
-    seclabel u:r:init:s0
