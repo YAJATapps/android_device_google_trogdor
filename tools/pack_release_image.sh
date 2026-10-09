@@ -17,6 +17,31 @@
 
 set -euo pipefail
 
+OUTPUT_TO_DESKTOP=false
+COMPRESS_XZ=true
+
+for arg in "$@"; do
+    case "$arg" in
+        --desktop)
+            OUTPUT_TO_DESKTOP=true
+            ;;
+        --noxz)
+            COMPRESS_XZ=false
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--desktop] [--noxz]"
+            echo "  --desktop  Output final image to ~/Desktop instead of out/target/product/trogdor"
+            echo "  --noxz     Skip .xz compression and output raw .img (super fast, ~5 sec build)"
+            exit 0
+            ;;
+        *)
+            echo "[-] ERROR: Unknown argument '$arg'" >&2
+            echo "Usage: $0 [--desktop] [--noxz]" >&2
+            exit 1
+            ;;
+    esac
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEVICE_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_TOP="${ANDROID_BUILD_TOP:-$(cd "$DEVICE_DIR/../../.." && pwd)}"
@@ -29,6 +54,10 @@ VMLINUZ_KPART="$PRODUCT_OUT/vmlinuz.kpart"
 SIMG2IMG="$HOST_OUT/bin/simg2img"
 
 RELEASE_NAME="lineage-23.2-trogdor-$(date +%Y%m%d)"
+DEST_DIR="$PRODUCT_OUT"
+if [ "$OUTPUT_TO_DESKTOP" = true ]; then
+    DEST_DIR="$HOME/Desktop"
+fi
 RAW_IMG="$PRODUCT_OUT/${RELEASE_NAME}.img"
 XZ_IMG="$PRODUCT_OUT/${RELEASE_NAME}.img.xz"
 
@@ -39,13 +68,24 @@ echo "============================================================"
 echo " LineageOS 23.2 Universal Release Image Builder"
 echo " Platform: Qualcomm Snapdragon 7c (SC7180) Chromebooks"
 echo " Family: Google Trogdor (Wormdingler, CoachZ, Lazor, Homun, etc.)"
+if [ "$OUTPUT_TO_DESKTOP" = true ]; then
+    echo " Target:   ~/Desktop"
+fi
+if [ "$COMPRESS_XZ" = false ]; then
+    echo " Mode:     Raw uncompressed .img (--noxz)"
+fi
 echo "============================================================"
 
 # 1. Check prerequisites
 SGDISK="$(command -v /usr/sbin/sgdisk || command -v sgdisk || true)"
 CGPT="$(command -v /usr/bin/cgpt || command -v cgpt || true)"
 
-for tool in mke2fs xz; do
+PREREQS="mke2fs"
+if [ "$COMPRESS_XZ" = true ]; then
+    PREREQS="$PREREQS xz"
+fi
+
+for tool in $PREREQS; do
     if ! command -v "$tool" &>/dev/null; then
         echo "[-] ERROR: Required tool '$tool' not found. Please install it (e.g. sudo apt install e2fsprogs xz-utils)." >&2
         exit 1
@@ -163,19 +203,31 @@ dd if="$SUPER_RAW" of="$RAW_IMG" bs=1M seek=$(( P4_START / 2048 )) conv=notrunc 
 echo "[*] Partition table verification:"
 "$CGPT" show "$RAW_IMG"
 
-echo "============================================================"
-echo "[*] Compressing disk image with multi-threaded XZ..."
-echo "    Output file: $XZ_IMG"
-echo "============================================================"
-xz -T0 -8 -f "$RAW_IMG"
+if [ "$COMPRESS_XZ" = true ]; then
+    echo "============================================================"
+    echo "[*] Compressing disk image with multi-threaded XZ..."
+    echo "============================================================"
+    xz -T0 -8 -f "$RAW_IMG"
+    FINAL_IMG="$PRODUCT_OUT/${RELEASE_NAME}.img.xz"
+    if [ "$OUTPUT_TO_DESKTOP" = true ]; then
+        mv "$FINAL_IMG" "$DEST_DIR/${RELEASE_NAME}.img.xz"
+        FINAL_IMG="$DEST_DIR/${RELEASE_NAME}.img.xz"
+    fi
+else
+    FINAL_IMG="$RAW_IMG"
+    if [ "$OUTPUT_TO_DESKTOP" = true ]; then
+        mv "$RAW_IMG" "$DEST_DIR/${RELEASE_NAME}.img"
+        FINAL_IMG="$DEST_DIR/${RELEASE_NAME}.img"
+    fi
+fi
 
 echo ""
 echo "============================================================"
-echo " [SUCCESS] Release image built successfully!"
-echo " Image: $XZ_IMG"
-echo " Size:  $(du -h "$XZ_IMG" | awk '{print $1}')"
+echo " [SUCCESS] Image built successfully!"
+echo " Image: $FINAL_IMG"
+echo " Size:  $(du -h "$FINAL_IMG" | awk '{print $1}')"
 echo " "
 echo " How to use:"
-echo " 1. Flash to USB stick or SD card with balenaEtcher or Rufus."
+echo " 1. Flash to USB stick or SD card with balenaEtcher, Rufus, or dd."
 echo " 2. Boot on Chromebook in Developer Mode with Ctrl + U."
 echo "============================================================"
