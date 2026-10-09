@@ -36,8 +36,9 @@ WORK_DIR=$(mktemp -d -t trogdor_pack_XXXXXX)
 trap "rm -rf '$WORK_DIR'" EXIT
 
 echo "============================================================"
-echo " LineageOS 23.2 Release Image Builder for Lenovo Duet 3"
-echo " Board: Google Trogdor (Wormdingler, SC7180)"
+echo " LineageOS 23.2 Universal Release Image Builder"
+echo " Platform: Qualcomm Snapdragon 7c (SC7180) Chromebooks"
+echo " Family: Google Trogdor (Wormdingler, CoachZ, Lazor, Homun, etc.)"
 echo "============================================================"
 
 # 1. Check prerequisites

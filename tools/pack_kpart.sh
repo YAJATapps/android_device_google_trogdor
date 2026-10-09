@@ -12,7 +12,7 @@ WORK_DIR=$(mktemp -d -t kpart_pack_XXXXXX)
 
 trap "rm -rf '$WORK_DIR'" EXIT
 
-echo "==> Packaging ChromeOS Depthcharge KPART kernel for Lenovo Duet 3 (Wormdingler)..."
+echo "==> Packaging ChromeOS Depthcharge KPART kernel for Google Trogdor (SC7180)..."
 
 LZ4="$BUILD_TOP/prebuilts/kernel-build-tools/linux-x86/bin/lz4"
 MKIMAGE="$BUILD_TOP/prebuilts/tools-lineage/linux-x86/bin/mkimage"
