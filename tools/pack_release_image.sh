@@ -41,12 +41,25 @@ echo " Board: Google Trogdor (Wormdingler, SC7180)"
 echo "============================================================"
 
 # 1. Check prerequisites
-for tool in sgdisk cgpt mke2fs xz; do
+SGDISK="$(command -v /usr/sbin/sgdisk || command -v sgdisk || true)"
+CGPT="$(command -v /usr/bin/cgpt || command -v cgpt || true)"
+
+for tool in mke2fs xz; do
     if ! command -v "$tool" &>/dev/null; then
-        echo "[-] ERROR: Required tool '$tool' not found. Please install it (e.g. sudo apt install gdisk cgpt e2fsprogs xz-utils)." >&2
+        echo "[-] ERROR: Required tool '$tool' not found. Please install it (e.g. sudo apt install e2fsprogs xz-utils)." >&2
         exit 1
     fi
 done
+
+if [ -z "$SGDISK" ]; then
+    echo "[-] ERROR: sgdisk not found. Please install gdisk (sudo apt install gdisk)." >&2
+    exit 1
+fi
+
+if [ -z "$CGPT" ]; then
+    echo "[-] ERROR: cgpt not found. Please install cgpt (sudo apt install cgpt)." >&2
+    exit 1
+fi
 
 if [ ! -f "$SIMG2IMG" ]; then
     echo "[-] ERROR: simg2img host tool not found at '$SIMG2IMG'. Please build it via: m simg2img" >&2
@@ -121,31 +134,33 @@ rm -f "$RAW_IMG"
 truncate -s $(( TOTAL_SECTORS * 512 )) "$RAW_IMG"
 
 echo "[*] Writing clean GPT partition table..."
-sgdisk -Z "$RAW_IMG"
-sgdisk -n "1:${P1_START}:${P1_END}" -c 1:misc -t 1:8300 "$RAW_IMG"
-sgdisk -n "2:${P2_START}:${P2_END}" -c 2:KERN-A -t 2:FE3A2A5D-4F32-41A7-B725-ACCC3285A309 "$RAW_IMG"
-sgdisk -n "3:${P3_START}:${P3_END}" -c 3:metadata -t 3:8300 "$RAW_IMG"
-sgdisk -n "4:${P4_START}:${P4_END}" -c 4:super -t 4:8300 "$RAW_IMG"
-sgdisk -n "5:${P5_START}:${P5_END}" -c 5:userdata -t 5:8300 "$RAW_IMG"
+"$SGDISK" \
+    --zap-all \
+    --new="1:${P1_START}:${P1_END}" --change-name="1:misc" --typecode="1:8300" \
+    --new="2:${P2_START}:${P2_END}" --change-name="2:KERN-A" --typecode="2:FE3A2A5D-4F32-41A7-B725-ACCC3285A309" \
+    --new="3:${P3_START}:${P3_END}" --change-name="3:metadata" --typecode="3:8300" \
+    --new="4:${P4_START}:${P4_END}" --change-name="4:super" --typecode="4:8300" \
+    --new="5:${P5_START}:${P5_END}" --change-name="5:userdata" --typecode="5:8300" \
+    "$RAW_IMG"
 
 echo "[*] Setting ChromeOS Depthcharge bootloader flags on KERN-A..."
-cgpt add -i 2 -P 15 -T 15 -S 1 "$RAW_IMG"
+"$CGPT" add -i 2 -P 15 -T 15 -S 1 "$RAW_IMG"
 
 echo "[*] Creating formatted metadata ext4 filesystem..."
 METADATA_IMG="$WORK_DIR/metadata.img"
 mke2fs -q -F -t ext4 -b 4096 -L metadata -O "^has_journal" "$METADATA_IMG" $(( P3_SIZE * 512 / 1024 ))k
 
 echo "[*] Burning KERN-A (vmlinuz.kpart) into partition 2..."
-dd if="$VMLINUZ_KPART" of="$RAW_IMG" bs=512 seek=$P2_START count=$P2_SIZE conv=notrunc status=none
+dd if="$VMLINUZ_KPART" of="$RAW_IMG" bs=1M seek=$(( P2_START / 2048 )) conv=notrunc status=none
 
 echo "[*] Burning metadata into partition 3..."
-dd if="$METADATA_IMG" of="$RAW_IMG" bs=512 seek=$P3_START count=$P3_SIZE conv=notrunc status=none
+dd if="$METADATA_IMG" of="$RAW_IMG" bs=1M seek=$(( P3_START / 2048 )) conv=notrunc status=none
 
 echo "[*] Burning super.raw.img into partition 4..."
-dd if="$SUPER_RAW" of="$RAW_IMG" bs=4M seek=$(( P4_START / 8192 )) conv=notrunc status=progress
+dd if="$SUPER_RAW" of="$RAW_IMG" bs=1M seek=$(( P4_START / 2048 )) conv=notrunc status=progress
 
 echo "[*] Partition table verification:"
-cgpt show "$RAW_IMG"
+"$CGPT" show "$RAW_IMG"
 
 echo "============================================================"
 echo "[*] Compressing disk image with multi-threaded XZ..."
