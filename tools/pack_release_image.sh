@@ -105,6 +105,12 @@ if [ ! -f "$SUPER_SPARSE" ]; then
     exit 1
 fi
 
+MAKE_F2FS="$HOST_OUT/bin/make_f2fs"
+if [ ! -f "$MAKE_F2FS" ]; then
+    echo "[-] ERROR: make_f2fs host tool not found at '$MAKE_F2FS'. Please build it via: m make_f2fs" >&2
+    exit 1
+fi
+
 # 2. Build or verify vmlinuz.kpart
 if [ ! -f "$VMLINUZ_KPART" ] || [ "$VMLINUZ_KPART" -ot "$PRODUCT_OUT/kernel" ]; then
     echo "[*] Packaging ChromeOS Depthcharge kernel (vmlinuz.kpart)..."
@@ -179,7 +185,12 @@ echo "[*] Writing ChromeOS Depthcharge GPT partition table with cgpt..."
 
 echo "[*] Creating formatted metadata ext4 filesystem..."
 METADATA_IMG="$WORK_DIR/metadata.img"
-mke2fs -q -F -t ext4 -b 4096 -L metadata -O "^has_journal" "$METADATA_IMG" $(( P3_SIZE * 512 / 1024 ))k
+mke2fs -q -F -t ext4 -b 4096 -L metadata "$METADATA_IMG" $(( P3_SIZE * 512 / 1024 ))k
+
+echo "[*] Creating formatted userdata f2fs filesystem (no casefold)..."
+USERDATA_IMG="$WORK_DIR/userdata.img"
+truncate -s $(( P5_SIZE * 512 )) "$USERDATA_IMG"
+"$HOST_OUT/bin/make_f2fs" -f -q -g android -O encrypt,extra_attr,project_quota,quota,compression -l data "$USERDATA_IMG"
 
 echo "[*] Burning KERN-A (vmlinuz.kpart) into partition 2..."
 dd if="$VMLINUZ_KPART" of="$RAW_IMG" bs=1M seek=$(( P2_START / 2048 )) conv=notrunc status=none
@@ -189,6 +200,9 @@ dd if="$METADATA_IMG" of="$RAW_IMG" bs=1M seek=$(( P3_START / 2048 )) conv=notru
 
 echo "[*] Burning super.raw.img into partition 4..."
 dd if="$SUPER_RAW" of="$RAW_IMG" bs=1M seek=$(( P4_START / 2048 )) conv=notrunc status=progress
+
+echo "[*] Burning userdata into partition 5..."
+dd if="$USERDATA_IMG" of="$RAW_IMG" bs=4M seek=$(( P5_START / 8192 )) conv=notrunc status=progress
 
 echo "[*] Partition table verification:"
 "$CGPT" show "$RAW_IMG"
