@@ -1,0 +1,15 @@
+//
+// Copyright (C) 2024 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+package {
+    default_applicable_licenses: ["device_google_trogdor_license"],
+}
+
+cc_binary {
+    name: "blkpg_resize",
+    vendor: true,
+    srcs: ["blkpg_resize.c"],
+}

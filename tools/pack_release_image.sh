@@ -160,11 +160,12 @@ P3_SIZE=32768
 P3_END=$(( P3_START + P3_SIZE - 1 )) # 204799
 
 P4_START=$(( P3_END + 1 )) # 204800
-P4_SIZE=$SUPER_SIZE_SECTORS
+# Align super partition container size to 4MB (8192 sectors)
+P4_SIZE=$(( ((SUPER_SIZE_SECTORS + 8191) / 8192) * 8192 ))
 P4_END=$(( P4_START + P4_SIZE - 1 ))
 
-# Userdata starts right after super aligned to 4MB (8192 sectors)
-P5_START=$(( (P4_END + 8192) / 8192 * 8192 ))
+# Userdata starts immediately after super with 0 gap (already 4MB aligned)
+P5_START=$(( P4_END + 1 ))
 # Initial image size: 15.5 GB total (~32,505,856 sectors, fits easily on any 16GB+ drive)
 TOTAL_SECTORS=32505856
 P5_END=$(( TOTAL_SECTORS - 34 )) # leave 33 sectors for secondary GPT table + 1 for header

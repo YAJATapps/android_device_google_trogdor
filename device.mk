@@ -56,6 +56,9 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc \
     $(DEVICE_PATH)/expand_userdata.sh:$(TARGET_COPY_OUT_VENDOR)/bin/expand_userdata.sh
 
+PRODUCT_PACKAGES += \
+    blkpg_resize
+
 # IDC
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/idc/Vendor_0603_Product_604a.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Vendor_0603_Product_604a.idc
