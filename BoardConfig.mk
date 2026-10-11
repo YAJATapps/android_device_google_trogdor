@@ -46,8 +46,7 @@ BOARD_KERNEL_CMDLINE += firmware_class.path=/vendor/firmware,/vendor/firmware/qc
 BOARD_KERNEL_CMDLINE += init=/init printk.devkmsg=on
 BOARD_KERNEL_CMDLINE += deferred_probe_timeout=30
 BOARD_KERNEL_CMDLINE += qcom_geni_serial.con_enabled=1
-BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200n8
-BOARD_KERNEL_CMDLINE += androidboot.boot_devices=soc@0/7c4000.mmc,soc@0/a6f8800.usb,any
+BOARD_KERNEL_CMDLINE += androidboot.boot_part_uuid=%U
 BOARD_KERNEL_CMDLINE += androidboot.hardware=trogdor
 BOARD_KERNEL_CMDLINE += androidboot.verifiedbootstate=orange
 BOARD_KERNEL_CMDLINE += androidboot.slot_suffix=_a

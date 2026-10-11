@@ -31,7 +31,7 @@ cp "$DTS_DIR"/sc7180-trogdor*.dtb "$WORK_DIR/"
 cp "$PRODUCT_OUT/ramdisk.img" "$WORK_DIR/ramdisk.img"
 
 # 3. Create cmdline (with verbose tty0 console)
-echo "earlycon console=tty0 loglevel=7 firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 androidboot.boot_devices=soc@0/7c4000.mmc,soc@0/a6f8800.usb,any androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
+echo "earlycon console=tty0 loglevel=7 firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 androidboot.boot_part_uuid=%U androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"
 
 # 4. Generate ITS description with CRC32 hashes matching Depthcharge specifications
 echo "--> Generating FIT ITS description for all $(ls "$WORK_DIR"/sc7180-trogdor*.dtb | wc -l) board variants..."
