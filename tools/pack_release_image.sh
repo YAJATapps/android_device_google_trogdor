@@ -18,25 +18,35 @@
 set -euo pipefail
 
 OUTPUT_TO_DESKTOP=false
-COMPRESS_XZ=true
+COMPRESSION_MODE="zip"
 
 for arg in "$@"; do
     case "$arg" in
         --desktop)
             OUTPUT_TO_DESKTOP=true
             ;;
-        --noxz)
-            COMPRESS_XZ=false
+        --raw|--img|--noxz)
+            COMPRESSION_MODE="none"
+            ;;
+        --xz)
+            # Retained for manual/headless workflows. Note: Etcher has a known
+            # 4 GiB streaming decompression bug on large .img.xz archives.
+            COMPRESSION_MODE="xz"
+            ;;
+        --zip)
+            COMPRESSION_MODE="zip"
             ;;
         -h|--help)
-            echo "Usage: $0 [--desktop] [--noxz]"
+            echo "Usage: $0 [--desktop] [--raw] [--xz]"
             echo "  --desktop  Output final image to ~/Desktop instead of out/target/product/trogdor"
-            echo "  --noxz     Skip .xz compression and output raw .img (super fast, ~5 sec build)"
+            echo "  --raw      Output raw uncompressed .img without ZIP packaging (alias: --img, --noxz)"
+            echo "  --xz       Compress using .xz format instead of default .zip"
+            echo "  --zip      Compress using standard .zip format (default)"
             exit 0
             ;;
         *)
             echo "[-] ERROR: Unknown argument '$arg'" >&2
-            echo "Usage: $0 [--desktop] [--noxz]" >&2
+            echo "Usage: $0 [--desktop] [--raw] [--xz]" >&2
             exit 1
             ;;
     esac
@@ -71,16 +81,23 @@ echo " Family: Google Trogdor (Wormdingler, CoachZ, Lazor, Homun, etc.)"
 if [ "$OUTPUT_TO_DESKTOP" = true ]; then
     echo " Target:   ~/Desktop"
 fi
-if [ "$COMPRESS_XZ" = false ]; then
-    echo " Mode:     Raw uncompressed .img (--noxz)"
-fi
+case "$COMPRESSION_MODE" in
+    zip)  echo " Format:   ZIP compressed (.zip) [Default / Etcher & ChromeOS safe]" ;;
+    xz)   echo " Format:   XZ compressed (.img.xz)" ;;
+    none) echo " Format:   Raw uncompressed (.img)" ;;
+esac
 echo "============================================================"
 
 CGPT="$(command -v /usr/bin/cgpt || command -v cgpt || true)"
 
 PREREQS="mke2fs"
-if [ "$COMPRESS_XZ" = true ]; then
+if [ "$COMPRESSION_MODE" = "xz" ]; then
     PREREQS="$PREREQS xz"
+elif [ "$COMPRESSION_MODE" = "zip" ]; then
+    if ! command -v 7z &>/dev/null && ! command -v zip &>/dev/null; then
+        echo "[-] ERROR: Neither 'zip' nor '7z' found. Please install zip (sudo apt install zip)." >&2
+        exit 1
+    fi
 fi
 
 for tool in $PREREQS; do
@@ -208,11 +225,34 @@ dd if="$USERDATA_IMG" of="$RAW_IMG" bs=4M seek=$(( P5_START / 8192 )) conv=notru
 echo "[*] Partition table verification:"
 "$CGPT" show "$RAW_IMG"
 
-if [ "$COMPRESS_XZ" = true ]; then
+if [ "$COMPRESSION_MODE" = "zip" ]; then
+    echo "============================================================"
+    echo "[*] Compressing disk image into standard ZIP archive..."
+    echo "============================================================"
+    ZIP_NAME="${RELEASE_NAME}.zip"
+    FINAL_IMG="$PRODUCT_OUT/${ZIP_NAME}"
+    rm -f "$FINAL_IMG"
+    if command -v 7z &>/dev/null; then
+        (cd "$PRODUCT_OUT" && 7z a -tzip -mx=1 -mmt=on "$FINAL_IMG" "${RELEASE_NAME}.img" >/dev/null)
+    else
+        (cd "$PRODUCT_OUT" && zip -1 -q "$FINAL_IMG" "${RELEASE_NAME}.img")
+    fi
+    rm -f "$RAW_IMG"
+    if [ "$OUTPUT_TO_DESKTOP" = true ]; then
+        mv "$FINAL_IMG" "$DEST_DIR/${ZIP_NAME}"
+        FINAL_IMG="$DEST_DIR/${ZIP_NAME}"
+    fi
+elif [ "$COMPRESSION_MODE" = "xz" ]; then
+    # NOTE (BalenaEtcher XZ Streaming Bug):
+    # BalenaEtcher's embedded Node.js lzma-native decompressor has a known 32-bit
+    # integer overflow / buffer desync bug on uncompressed images > 4 GiB.
+    # When flashing .img.xz directly, Etcher fails verification with:
+    # "Something went wrong. If it is compressed, please check that it is not corrupted."
+    # and leaves the USB half-written/corrupt. We default to standard .zip instead.
     echo "============================================================"
     echo "[*] Compressing disk image with multi-threaded XZ..."
     echo "============================================================"
-    xz -T0 -8 -f "$RAW_IMG"
+    xz -T0 -0 --block-size=1MiB -f "$RAW_IMG"
     FINAL_IMG="$PRODUCT_OUT/${RELEASE_NAME}.img.xz"
     if [ "$OUTPUT_TO_DESKTOP" = true ]; then
         mv "$FINAL_IMG" "$DEST_DIR/${RELEASE_NAME}.img.xz"
