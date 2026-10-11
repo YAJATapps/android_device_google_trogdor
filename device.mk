@@ -54,10 +54,12 @@ PRODUCT_SOONG_NAMESPACES += \
 include $(DEVICE_PATH)/shared/utils/dlkm_loader/device.mk
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc \
-    $(DEVICE_PATH)/expand_userdata.sh:$(TARGET_COPY_OUT_VENDOR)/bin/expand_userdata.sh
+    $(DEVICE_PATH)/expand_userdata.sh:$(TARGET_COPY_OUT_VENDOR)/bin/expand_userdata.sh \
+    $(DEVICE_PATH)/install_to_emmc.sh:$(TARGET_COPY_OUT_VENDOR)/bin/install_to_emmc.sh
 
 PRODUCT_PACKAGES += \
-    blkpg_resize
+    blkpg_resize \
+    InstallAndroid
 
 # IDC
 PRODUCT_COPY_FILES += \

@@ -101,4 +101,16 @@ service expand_userdata /system/bin/sh /vendor/bin/expand_userdata.sh
     oneshot
     seclabel u:r:init:s0
 
+on property:vendor.installer.action=start
+    start install_to_emmc
+
+service install_to_emmc /system/bin/sh /vendor/bin/install_to_emmc.sh
+    class late_start
+    user root
+    group root system
+    disabled
+    oneshot
+    seclabel u:r:init:s0
+
+
 
