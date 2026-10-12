@@ -63,7 +63,7 @@ SUPER_RAW="$PRODUCT_OUT/super.raw.img"
 VMLINUZ_KPART="$PRODUCT_OUT/vmlinuz.kpart"
 SIMG2IMG="$HOST_OUT/bin/simg2img"
 
-RELEASE_NAME="lineage-23.2-trogdor-$(date +%Y%m%d)"
+RELEASE_NAME="lineage-24-trogdor-$(date +%Y%m%d)"
 DEST_DIR="$PRODUCT_OUT"
 if [ "$OUTPUT_TO_DESKTOP" = true ]; then
     DEST_DIR="$HOME/Desktop"
@@ -75,7 +75,7 @@ WORK_DIR=$(mktemp -d -t trogdor_pack_XXXXXX)
 trap "rm -rf '$WORK_DIR'" EXIT
 
 echo "============================================================"
-echo " LineageOS 23.2 Universal Release Image Builder"
+echo " LineageOS 24 Universal Release Image Builder"
 echo " Platform: Qualcomm Snapdragon 7c (SC7180) Chromebooks"
 echo " Family: Google Trogdor (Wormdingler, CoachZ, Lazor, Homun, etc.)"
 if [ "$OUTPUT_TO_DESKTOP" = true ]; then
