@@ -18,12 +18,17 @@ if [ -f "$TOP/external/libjxl/Android.bp" ]; then
 fi
 
 # packages/apps/SetupWizard
-if [ -f "$TOP/packages/apps/SetupWizard/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt" ]; then
-    echo "Patching packages/apps/SetupWizard: enabling skip on boot (Kotlin)..."
-    sed -i 's/get() = Build.TYPE == "eng"/get() = true/' "$TOP/packages/apps/SetupWizard/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt"
-elif [ -f "$TOP/packages/apps/SetupWizard/src/org/lineageos/setupwizard/WelcomeActivity.java" ]; then
+SUW_KT="$TOP/packages/apps/SetupWizard/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt"
+SUW_JAVA="$TOP/packages/apps/SetupWizard/src/org/lineageos/setupwizard/WelcomeActivity.java"
+if [ -f "$SUW_KT" ]; then
+    echo "Patching packages/apps/SetupWizard: auto-finishing setup on boot (Kotlin)..."
+    sed -i 's/get() = Build.TYPE == "eng"/get() = true/' "$SUW_KT"
+    if ! grep -q "finishSetupWizard(this)" "$SUW_KT"; then
+        sed -i '/super.onCreate(savedInstanceState)/a \        if (!isFinishing) { SetupWizardUtils.finishSetupWizard(this); return }' "$SUW_KT"
+    fi
+elif [ -f "$SUW_JAVA" ]; then
     echo "Patching packages/apps/SetupWizard: auto-finishing setup on boot..."
-    sed -i 's/if (Build.TYPE.equals("eng"))/SetupWizardUtils.finishSetupWizard(this); if (false)/' "$TOP/packages/apps/SetupWizard/src/org/lineageos/setupwizard/WelcomeActivity.java"
+    sed -i 's/if (Build.TYPE.equals("eng"))/SetupWizardUtils.finishSetupWizard(this); if (false)/' "$SUW_JAVA"
 fi
 
 # system/vold: C++23 missing <algorithm> header for std::replace
