@@ -55,6 +55,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     qcom_stats.ko \
     qcom_wcnss_pil.ko \
     sbs-battery.ko \
+    snd-soc-adau7002.ko \
     snd-soc-cros-ec-codec.ko \
     snd-soc-lpass-cdc-dma.ko \
     snd-soc-lpass-cpu.ko \
