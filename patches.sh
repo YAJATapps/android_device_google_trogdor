@@ -31,6 +31,16 @@ elif [ -f "$SUW_JAVA" ]; then
     sed -i 's/if (Build.TYPE.equals("eng"))/SetupWizardUtils.finishSetupWizard(this); if (false)/' "$SUW_JAVA"
 fi
 
+SUW_ACT_KT="$TOP/packages/apps/SetupWizard/app/src/main/java/org/lineageos/setupwizard/SetupWizardActivity.kt"
+SUW_ACT_JAVA="$TOP/packages/apps/SetupWizard/src/org/lineageos/setupwizard/SetupWizardActivity.java"
+if [ -f "$SUW_ACT_KT" ]; then
+    echo "Patching packages/apps/SetupWizard: disabling forced gesture navigation (Kotlin)..."
+    sed -i 's/^[[:space:]]*SetupWizardUtils.enableGesturalNavigation(this)/\/\/ SetupWizardUtils.enableGesturalNavigation(this)/' "$SUW_ACT_KT"
+elif [ -f "$SUW_ACT_JAVA" ]; then
+    echo "Patching packages/apps/SetupWizard: disabling forced gesture navigation..."
+    sed -i 's/^[[:space:]]*SetupWizardUtils.enableGesturalNavigation(this);/\/\/ SetupWizardUtils.enableGesturalNavigation(this);/' "$SUW_ACT_JAVA"
+fi
+
 # system/vold: C++23 missing <algorithm> header for std::replace
 VOLD_PUBLIC_VOL="$TOP/system/vold/model/PublicVolume.cpp"
 if [ -f "$VOLD_PUBLIC_VOL" ] && ! grep -q "#include <algorithm>" "$VOLD_PUBLIC_VOL"; then
