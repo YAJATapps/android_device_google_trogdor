@@ -102,5 +102,10 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     selftests.ko \
     phylink.ko \
     asix.ko \
-    rndis_host.ko
+    rndis_host.ko \
+    mc.ko \
+    snd-hwdep.ko \
+    snd-ump.ko \
+    snd-usbmidi-lib.ko \
+    snd-usb-audio.ko
 
