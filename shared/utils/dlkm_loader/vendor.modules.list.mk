@@ -88,4 +88,19 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     hid-vivaldi-common.ko \
     i2c-hid.ko \
     i2c-hid-of.ko \
-    i2c-hid-of-goodix.ko
+    i2c-hid-of-goodix.ko \
+    libphy.ko \
+    mii.ko \
+    usbnet.ko \
+    cdc_ether.ko \
+    cdc_ncm.ko \
+    cdc_subset.ko \
+    r8152.ko \
+    r8153_ecm.ko \
+    rtl8150.ko \
+    ax88179_178a.ko \
+    selftests.ko \
+    phylink.ko \
+    asix.ko \
+    rndis_host.ko
+
