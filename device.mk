@@ -55,7 +55,8 @@ include $(DEVICE_PATH)/shared/utils/dlkm_loader/device.mk
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/shared/utils/dlkm_loader/dlkm_loader.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/dlkm_loader.rc \
     $(DEVICE_PATH)/scripts/expand_userdata.sh:$(TARGET_COPY_OUT_VENDOR)/bin/expand_userdata.sh \
-    $(DEVICE_PATH)/scripts/install_to_emmc.sh:$(TARGET_COPY_OUT_VENDOR)/bin/install_to_emmc.sh
+    $(DEVICE_PATH)/scripts/install_to_emmc.sh:$(TARGET_COPY_OUT_VENDOR)/bin/install_to_emmc.sh \
+    $(DEVICE_PATH)/scripts/setup_audio.sh:$(TARGET_COPY_OUT_VENDOR)/bin/setup_audio.sh
 
 PRODUCT_PACKAGES += \
     blkpg_resize \
@@ -166,6 +167,7 @@ PRODUCT_VENDOR_PROPERTIES += media.c2.hal.selection=aidl
 USE_XML_AUDIO_POLICY_CONF := 1
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/etc/audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_configuration.xml \
+    $(DEVICE_PATH)/etc/audio_policy_configuration_homestar.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_configuration_homestar.xml \
     hardware/interfaces/audio/aidl/default/audio_effects_config.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects_config.xml \
     frameworks/av/services/audiopolicy/config/bluetooth_audio_policy_configuration_7_0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth_audio_policy_configuration_7_0.xml \
     frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/r_submix_audio_policy_configuration.xml \
