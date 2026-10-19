@@ -64,7 +64,8 @@ PRODUCT_PACKAGES += \
 
 # IDC
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/idc/Vendor_0603_Product_604a.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Vendor_0603_Product_604a.idc
+    $(DEVICE_PATH)/idc/Vendor_0603_Product_604a.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Vendor_0603_Product_604a.idc \
+    $(DEVICE_PATH)/idc/Vendor_04f3_Product_2ec6.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Vendor_04f3_Product_2ec6.idc
 
 # BootControl HAL
 PRODUCT_PACKAGES += \

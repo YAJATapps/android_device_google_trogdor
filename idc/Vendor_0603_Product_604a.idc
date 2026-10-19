@@ -1,7 +1,8 @@
 #
 # Copyright (C) 2026 The LineageOS Project
 #
-# Touchscreen IDC: panel is native portrait, display runs landscape.
+# Lenovo IdeaPad Duet 3 (Wormdingler) Touchscreen IDC:
+# Panel is native portrait, display runs landscape.
 #
 
 device.internal = 1
