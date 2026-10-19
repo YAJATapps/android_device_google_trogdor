@@ -66,8 +66,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/idc/Vendor_0603_Product_604a.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Vendor_0603_Product_604a.idc
 
-#    $(DEVICE_PATH)/idc/Google_Inc._Hammer.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/Google_Inc._Hammer.idc
-
 # BootControl HAL
 PRODUCT_PACKAGES += \
     com.android.hardware.boot \
