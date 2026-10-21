@@ -3,6 +3,9 @@ vndbinder_use(hal_graphics_composer_default)
 
 allow hal_graphics_composer_default self:netlink_kobject_uevent_socket { bind create read };
 
+allow hal_graphics_composer_default sysfs_leds:dir r_dir_perms;
+allow hal_graphics_composer_default sysfs_leds:file rw_file_perms;
+
 # Suppress warnings for drm_hwcomposer trying to read some vendor.hwc.*
 # properties as dragonboard never configures these properties.
 dontaudit hal_graphics_composer_default default_prop:file read;
