@@ -115,7 +115,7 @@ service expand_userdata /system/bin/sh /vendor/bin/expand_userdata.sh
 service setup_audio /system/bin/sh /vendor/bin/setup_audio.sh
     class core
     user root
-    group root system
+    group root system audio
     disabled
     oneshot
     seclabel u:r:init:s0
