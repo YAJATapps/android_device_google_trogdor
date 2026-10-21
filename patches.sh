@@ -68,4 +68,17 @@ if [ -f "$NMS_ATTENTION_HELPER" ] && ! grep -q "mLineageNotificationLights != nu
     sed -i 's/if (!mLineageNotificationLights\.showLightsScreenOn())/if (mLineageNotificationLights != null \&\& !mLineageNotificationLights.showLightsScreenOn())/g' "$NMS_ATTENTION_HELPER"
 fi
 
+# hardware/lineage/interfaces/light: add dp_aux_backlight for eDP panels (e.g. Lenovo Duet 5)
+LIGHT_DEVICES="$TOP/hardware/lineage/interfaces/light/Devices.cpp"
+if [ -f "$LIGHT_DEVICES" ] && ! grep -q "dp_aux_backlight" "$LIGHT_DEVICES"; then
+    echo "Patching hardware/lineage/interfaces/light: adding dp_aux_backlight to Devices.cpp..."
+    sed -i 's/"panel0-backlight-ex",/"panel0-backlight-ex",\n        "dp_aux_backlight",/' "$LIGHT_DEVICES"
+fi
+
+LIGHT_RC="$TOP/hardware/lineage/interfaces/light/android.hardware.light-service.lineage.rc"
+if [ -f "$LIGHT_RC" ] && ! grep -q "dp_aux_backlight" "$LIGHT_RC"; then
+    echo "Patching hardware/lineage/interfaces/light: adding dp_aux_backlight permissions to rc..."
+    sed -i '/sprd_backlight\/max_brightness/a \\n    chown system system \/sys\/class\/backlight\/dp_aux_backlight\/brightness\n    chown system system \/sys\/class\/backlight\/dp_aux_backlight\/max_brightness' "$LIGHT_RC"
+fi
+
 echo "Patches applied successfully."

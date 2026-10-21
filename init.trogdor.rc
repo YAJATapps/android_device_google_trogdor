@@ -43,15 +43,28 @@ on early-boot
     chmod 777 /sys/kernel/debug/sync/sw_sync
     chown graphics graphics /sys/kernel/debug/sync/info
 
-    # Backlight permissions for drm_hwcomposer
+    # Backlight permissions for drm_hwcomposer and lights HAL
     chown system system /sys/class/backlight/backlight/brightness
+    chown system system /sys/class/backlight/backlight/max_brightness
     chown system system /sys/class/backlight/backlight/bl_power
     chmod 0660 /sys/class/backlight/backlight/brightness
+    chmod 0660 /sys/class/backlight/backlight/max_brightness
     chmod 0660 /sys/class/backlight/backlight/bl_power
+
     chown system system /sys/class/backlight/panel0-backlight/brightness
+    chown system system /sys/class/backlight/panel0-backlight/max_brightness
     chown system system /sys/class/backlight/panel0-backlight/bl_power
     chmod 0660 /sys/class/backlight/panel0-backlight/brightness
+    chmod 0660 /sys/class/backlight/panel0-backlight/max_brightness
     chmod 0660 /sys/class/backlight/panel0-backlight/bl_power
+
+    # Permissions for eDP DPCD AUX panel backlight (Lenovo Duet 5 / Homestar)
+    chown system system /sys/class/backlight/dp_aux_backlight/brightness
+    chown system system /sys/class/backlight/dp_aux_backlight/max_brightness
+    chown system system /sys/class/backlight/dp_aux_backlight/bl_power
+    chmod 0660 /sys/class/backlight/dp_aux_backlight/brightness
+    chmod 0660 /sys/class/backlight/dp_aux_backlight/max_brightness
+    chmod 0660 /sys/class/backlight/dp_aux_backlight/bl_power
 
 on zygote-start
     mkdir /data/vendor/wifi 0770 wifi wifi
