@@ -107,5 +107,12 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     snd-hwdep.ko \
     snd-ump.ko \
     snd-usbmidi-lib.ko \
-    snd-usb-audio.ko
+    snd-usb-audio.ko \
+    videobuf2-common.ko \
+    videodev.ko \
+    videobuf2-v4l2.ko \
+    videobuf2-memops.ko \
+    uvc.ko \
+    videobuf2-vmalloc.ko \
+    uvcvideo.ko
 
