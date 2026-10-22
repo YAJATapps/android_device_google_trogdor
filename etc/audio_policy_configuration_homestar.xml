@@ -17,7 +17,10 @@
 <!-- Audio Policy Configuration for Lenovo IdeaPad Duet 5 (Homestar)
      Homestar routes Secondary MI2S across 2 serial data lines (SD0 and SD1)
      to drive 4 discrete MAX98360A speaker amplifiers in QUAD01 mode.
-     The LPASS hardware driver requires 4 channels (AUDIO_CHANNEL_INDEX_MASK_4).
+     The LPASS hardware driver strictly requires 4 channels (AUDIO_CHANNEL_OUT_QUAD).
+     Both mixPort and devicePort are configured for AUDIO_CHANNEL_OUT_QUAD only,
+     ensuring the HAL opens a 4-channel PCM stream and AudioFlinger automatically
+     upmixes stereo application audio across all 4 speakers.
 -->
 <audioPolicyConfiguration version="7.0" xmlns:xi="http://www.w3.org/2001/XInclude">
     <!-- version section contains a “version” tag in the form “major.minor” e.g version=”1.0” -->
@@ -37,7 +40,7 @@
             <mixPorts>
                 <mixPort name="primary output" role="source" flags="AUDIO_OUTPUT_FLAG_PRIMARY">
                     <profile name="" format="AUDIO_FORMAT_PCM_16_BIT"
-                             samplingRates="48000" channelMasks="AUDIO_CHANNEL_INDEX_MASK_4"/>
+                             samplingRates="48000" channelMasks="AUDIO_CHANNEL_OUT_QUAD"/>
                 </mixPort>
                 <mixPort name="primary input" role="sink">
                     <profile name="" format="AUDIO_FORMAT_PCM_16_BIT"
@@ -54,7 +57,7 @@
                 <!-- Output devices declaration, i.e. Sink DEVICE PORT -->
                 <devicePort tagName="Speaker" role="sink" type="AUDIO_DEVICE_OUT_SPEAKER" address="CARD_0_DEV_1">
                     <profile name="" format="AUDIO_FORMAT_PCM_16_BIT"
-                             samplingRates="48000" channelMasks="AUDIO_CHANNEL_INDEX_MASK_4"/>
+                             samplingRates="48000" channelMasks="AUDIO_CHANNEL_OUT_QUAD"/>
                 </devicePort>
                 <devicePort tagName="Wired Headset" type="AUDIO_DEVICE_OUT_WIRED_HEADSET" role="sink">
                 </devicePort>

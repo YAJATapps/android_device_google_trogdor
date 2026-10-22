@@ -12,7 +12,9 @@ on post-fs
     # set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
     exec_start expand_userdata
-    exec_start setup_audio
+
+on property:vendor.hw=homestar
+    mount none /vendor/etc/audio_policy_configuration_homestar.xml /vendor/etc/audio_policy_configuration.xml bind
 
 on late-fs
     mount_all /vendor/etc/fstab.${ro.hardware} --late
@@ -31,6 +33,18 @@ on init
     write /dev/cpuset/background/cpus 0-7
     write /dev/cpuset/system-background/cpus 0-7
     write /dev/cpuset/top-app/cpus 0-7
+
+on boot
+    # Configure ALSA codec mixer controls for internal microphone (Realtek ALC5682)
+    # per upstream ChromeOS UCM topology
+    exec - system audio -- /system/bin/tinymix -D 0 "STO1 ADC Capture Switch" 1 1
+    exec - system audio -- /system/bin/tinymix -D 0 "IF1 01 ADC Swap Mux" 1
+    exec - system audio -- /system/bin/tinymix -D 0 "Stereo1 ADC L2 Mux" 1
+    exec - system audio -- /system/bin/tinymix -D 0 "Stereo1 ADC R2 Mux" 1
+    exec - system audio -- /system/bin/tinymix -D 0 "Stereo1 ADC MIXL ADC2 Switch" 1
+    exec - system audio -- /system/bin/tinymix -D 0 "Stereo1 ADC MIXR ADC2 Switch" 1
+    exec - system audio -- /system/bin/tinymix -D 0 "STO1 ADC Capture Volume" 50 50
+    exec - system audio -- /system/bin/tinymix -D 0 "STO1 ADC Boost Gain Volume" 2 2
 
 on boot && property:service.adb.tcp.port=5555
     start adbd
@@ -122,14 +136,6 @@ service expand_userdata /system/bin/sh /vendor/bin/expand_userdata.sh
     class core
     user root
     group root system
-    oneshot
-    seclabel u:r:init:s0
-
-service setup_audio /system/bin/sh /vendor/bin/setup_audio.sh
-    class core
-    user root
-    group root system audio
-    disabled
     oneshot
     seclabel u:r:init:s0
 

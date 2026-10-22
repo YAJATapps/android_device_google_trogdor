@@ -3,33 +3,16 @@
 #
 # grep the device name from /proc/device-tree/compatible
 
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep -E 'trogdor|wormdingler'`
+HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep homestar`
 if [ -n "${HW}" ]; then
-    setprop vendor.hw trogdor
+    setprop vendor.hw homestar
     setprop vendor.thermal.config thermal-trogdor.json
     exit 0
 fi
 
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep rb5`
+HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep -E 'trogdor|wormdingler'`
 if [ -n "${HW}" ]; then
-    setprop vendor.hw rb5
-    exit 0
-fi
-
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep sm8550-hdk`
-if [ -n "${HW}" ]; then
-    setprop vendor.hw sm8550hdk
-    exit 0
-fi
-
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep sm8550-qrd`
-if [ -n "${HW}" ]; then
-    setprop vendor.hw sm8550qrd
-    exit 0
-fi
-
-HW=`/vendor/bin/cat /proc/device-tree/compatible | /vendor/bin/grep sm8650-qrd`
-if [ -n "${HW}" ]; then
-    setprop vendor.hw sm8650qrd
+    setprop vendor.hw trogdor
+    setprop vendor.thermal.config thermal-trogdor.json
     exit 0
 fi

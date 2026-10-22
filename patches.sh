@@ -81,4 +81,11 @@ if [ -f "$LIGHT_RC" ] && ! grep -q "dp_aux_backlight" "$LIGHT_RC"; then
     sed -i '/sprd_backlight\/max_brightness/a \\n    chown system system \/sys\/class\/backlight\/dp_aux_backlight\/brightness\n    chown system system \/sys\/class\/backlight\/dp_aux_backlight\/max_brightness' "$LIGHT_RC"
 fi
 
+# hardware/interfaces/audio: add QUAD to supportedOutChannelLayouts for 4-channel devices (e.g. Lenovo Duet 5)
+AHAL_UTILS="$TOP/hardware/interfaces/audio/aidl/default/alsa/UtilsAlsa.cpp"
+if [ -f "$AHAL_UTILS" ] && ! grep -q "DEFINE_CHANNEL_LAYOUT_MASK(QUAD)" "$AHAL_UTILS"; then
+    echo "Patching hardware/interfaces/audio: adding QUAD to supportedOutChannelLayouts..."
+    sed -i '/DEFINE_CHANNEL_LAYOUT_MASK(STEREO),/a \            DEFINE_CHANNEL_LAYOUT_MASK(QUAD),' "$AHAL_UTILS"
+fi
+
 echo "Patches applied successfully."
