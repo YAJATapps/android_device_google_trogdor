@@ -1,0 +1,26 @@
+diff --git a/light/Devices.cpp b/light/Devices.cpp
+index dd71bf7..e71bed7 100644
+--- a/light/Devices.cpp
++++ b/light/Devices.cpp
+@@ -41,6 +41,7 @@ static const std::string kBacklightDevices[] = {
+         "backlight",
+         "panel0-backlight",
+         "panel0-backlight-ex",
++        "dp_aux_backlight",
+         "sprd_backlight",
+ };
+ 
+diff --git a/light/android.hardware.light-service.lineage.rc b/light/android.hardware.light-service.lineage.rc
+index ea06db4..65eaafb 100644
+--- a/light/android.hardware.light-service.lineage.rc
++++ b/light/android.hardware.light-service.lineage.rc
+@@ -12,6 +12,9 @@ on early-boot
+     chown system system /sys/class/backlight/sprd_backlight/brightness
+     chown system system /sys/class/backlight/sprd_backlight/max_brightness
+ 
++    chown system system /sys/class/backlight/dp_aux_backlight/brightness
++    chown system system /sys/class/backlight/dp_aux_backlight/max_brightness
++
+     # LED devices
+     chown system system /sys/class/leds/blue/blink
+     chown system system /sys/class/leds/blue/breath

@@ -1,0 +1,22 @@
+diff --git a/services/core/java/com/android/server/notification/NotificationAttentionHelper.java b/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
+index f5756a2d8706..79ea557d11e8 100644
+--- a/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
++++ b/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
+@@ -1088,7 +1088,7 @@ public final class NotificationAttentionHelper {
+ 
+         if (favoritesIncomingCallLights()) {
+             if (!isCallLight(ledNotification) || mUserPresent || isInCall()) {
+-                if (!mLineageNotificationLights.showLightsScreenOn()) {
++                if (mLineageNotificationLights != null && !mLineageNotificationLights.showLightsScreenOn()) {
+                     stopPriorityNotificationLight();
+                 }
+             }
+@@ -1890,7 +1890,7 @@ public final class NotificationAttentionHelper {
+             } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
+                 mUserPresent = true;
+                 // turn off LED when user passes through lock screen
+-                if (!mLineageNotificationLights.showLightsScreenOn()) {
++                if (mLineageNotificationLights != null && !mLineageNotificationLights.showLightsScreenOn()) {
+                     stopNotificationLight();
+                     stopPriorityNotificationLight();
+                 }

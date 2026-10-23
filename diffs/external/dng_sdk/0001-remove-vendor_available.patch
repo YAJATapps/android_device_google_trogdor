@@ -1,0 +1,12 @@
+diff --git a/Android.bp b/Android.bp
+index 02e6e8a..99e08d1 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -185,7 +185,6 @@ cc_library {
+     name: "libdng_sdk",
+     host_supported: true,
+     defaults: ["libdng_sdk-defaults"],
+-    vendor_available: true,
+ 
+     sanitize: {
+         // For now we want to disable the ubsan_minimal runtime so that we can

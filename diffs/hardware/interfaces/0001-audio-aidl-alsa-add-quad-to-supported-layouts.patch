@@ -1,0 +1,12 @@
+diff --git a/audio/aidl/default/alsa/UtilsAlsa.cpp b/audio/aidl/default/alsa/UtilsAlsa.cpp
+index 6332fbfa54..b5f6ef66c9 100644
+--- a/audio/aidl/default/alsa/UtilsAlsa.cpp
++++ b/audio/aidl/default/alsa/UtilsAlsa.cpp
+@@ -86,6 +86,7 @@ const AudioChannelCountToMaskMap& getSupportedChannelOutLayoutMap() {
+     static const std::set<AudioChannelLayout> supportedOutChannelLayouts = {
+             DEFINE_CHANNEL_LAYOUT_MASK(MONO),
+             DEFINE_CHANNEL_LAYOUT_MASK(STEREO),
++            DEFINE_CHANNEL_LAYOUT_MASK(QUAD),
+     };
+     static const AudioChannelCountToMaskMap outLayouts =
+             make_ChannelCountToMaskMap(supportedOutChannelLayouts);

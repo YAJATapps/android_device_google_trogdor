@@ -1,0 +1,12 @@
+diff --git a/model/PublicVolume.cpp b/model/PublicVolume.cpp
+index bf7aaa6..4a85bfd 100644
+--- a/model/PublicVolume.cpp
++++ b/model/PublicVolume.cpp
+@@ -15,6 +15,7 @@
+  */
+ 
+ #include "PublicVolume.h"
++#include <algorithm>
+ 
+ #include "AppFuseUtil.h"
+ #include "Utils.h"

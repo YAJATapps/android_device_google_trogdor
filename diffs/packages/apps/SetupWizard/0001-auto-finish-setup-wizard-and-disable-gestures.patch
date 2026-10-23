@@ -1,0 +1,34 @@
+diff --git a/app/src/main/java/org/lineageos/setupwizard/SetupWizardActivity.kt b/app/src/main/java/org/lineageos/setupwizard/SetupWizardActivity.kt
+index 20d7796..1d44910 100644
+--- a/app/src/main/java/org/lineageos/setupwizard/SetupWizardActivity.kt
++++ b/app/src/main/java/org/lineageos/setupwizard/SetupWizardActivity.kt
+@@ -26,7 +26,7 @@ class SetupWizardActivity : AppCompatActivity() {
+             return
+         }
+         SetupWizardUtils.enableComponent(this, WizardManager::class.java)
+-        SetupWizardUtils.enableGesturalNavigation(this)
++// SetupWizardUtils.enableGesturalNavigation(this)
+         val scriptUri =
+             when {
+                 SetupWizardUtils.isOwner() -> R.string.lineage_wizard_script_uri
+diff --git a/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt b/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt
+index 9b80d62..be8af3e 100644
+--- a/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt
++++ b/app/src/main/java/org/lineageos/setupwizard/WelcomeActivity.kt
+@@ -28,7 +28,7 @@ import org.lineageos.setupwizard.util.SetupWizardUtils
+ class WelcomeActivity : SubBaseActivity() {
+ 
+     private val isSkipAvailable: Boolean
+-        get() = Build.TYPE == "eng"
++        get() = true
+ 
+     override fun onStartSubactivity() {
+         // no-op
+@@ -36,6 +36,7 @@ class WelcomeActivity : SubBaseActivity() {
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
++        if (!isFinishing) { SetupWizardUtils.finishSetupWizard(this); return }
+         onSetupStart()
+         SystemBarHelper.setBackButtonVisible(window, false)
+ 
