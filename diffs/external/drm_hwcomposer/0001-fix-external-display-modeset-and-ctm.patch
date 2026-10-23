@@ -1,0 +1,113 @@
+diff --git a/drm/DrmAtomicStateManager.cpp b/drm/DrmAtomicStateManager.cpp
+index 99d646f..77ebf9b 100644
+--- a/drm/DrmAtomicStateManager.cpp
++++ b/drm/DrmAtomicStateManager.cpp
+@@ -114,6 +114,14 @@ std::optional<AtomicCommitResult> DrmAtomicStateManager::CommitFrame(
+     // Force args.power_mode if the display is not active and there are other
+     // things to commit.
+     args.power_mode = HwcDisplay::PowerMode::kOn;
++    if (!args.display_mode && pipe_ && pipe_->connector &&
++        pipe_->connector->Get()) {
++      const auto &modes = pipe_->connector->Get()->GetModes();
++      if (!modes.empty()) {
++        args.display_mode = modes[0];
++        args.seamless = false;
++      }
++    }
+   }
+ 
+   auto atomic_request = GetAtomicModeReqForArgs(args);
+@@ -183,6 +191,13 @@ std::optional<AtomicCommitResult> DrmAtomicStateManager::CommitFrame(
+   if (args.display_mode) {
+     auto raw_mode = args.display_mode.value().GetRawMode();
+     whole_display_rect_.i_rect = {0, 0, raw_mode.hdisplay, raw_mode.vdisplay};
++  } else if (!whole_display_rect_.i_rect && pipe_ && pipe_->connector &&
++             pipe_->connector->Get()) {
++    const auto &modes = pipe_->connector->Get()->GetModes();
++    if (!modes.empty()) {
++      auto raw_mode = modes[0].GetRawMode();
++      whole_display_rect_.i_rect = {0, 0, raw_mode.hdisplay, raw_mode.vdisplay};
++    }
+   }
+ 
+   if (nonblock) {
+@@ -311,10 +326,15 @@ bool DrmAtomicStateManager::SetDisplayModeIfNeeded(const AtomicCommitArgs &args,
+ bool DrmAtomicStateManager::SetCtmIfNeeded(const AtomicCommitArgs &args,
+                                            AtomicRequest &request) {
+   auto *crtc = pipe_->crtc->Get();
+-  if (!args.color_matrix || !crtc->GetCtmProperty()) {
++  if (!crtc->GetCtmProperty()) {
+     return true;
+   }
+ 
++  if (!args.color_matrix ||
++      (pipe_->connector && !pipe_->connector->Get()->IsInternal())) {
++    return crtc->GetCtmProperty().AtomicSet(*request.property_set, 0);
++  }
++
+   auto *drm = pipe_->device;
+   if (drm->GetResMan().UseColorPipeline()) {
+     return crtc->GetCtmProperty().AtomicSet(*request.property_set, 0);
+@@ -460,6 +480,13 @@ bool DrmAtomicStateManager::SetCompositionIfNeeded(const AtomicCommitArgs &args,
+     if (args.display_mode) {
+       auto raw_mode = args.display_mode.value().GetRawMode();
+       display_rect_info.i_rect = {0, 0, raw_mode.hdisplay, raw_mode.vdisplay};
++    } else if (!display_rect_info.i_rect && pipe_ && pipe_->connector &&
++               pipe_->connector->Get()) {
++      const auto &modes = pipe_->connector->Get()->GetModes();
++      if (!modes.empty()) {
++        auto raw_mode = modes[0].GetRawMode();
++        display_rect_info.i_rect = {0, 0, raw_mode.hdisplay, raw_mode.vdisplay};
++      }
+     }
+ 
+     if (plane->AtomicSetState(*request.property_set, layer, joining.z_pos,
+diff --git a/drm/DrmPlane.cpp b/drm/DrmPlane.cpp
+index dc8ec8d..5341f2a 100644
+--- a/drm/DrmPlane.cpp
++++ b/drm/DrmPlane.cpp
+@@ -399,6 +399,13 @@ auto DrmPlane::AtomicSetState(drmModeAtomicReq &pset, LayerData &layer,
+     opt_src = {0.0F, 0.0F, float(layer.bi->width), float(layer.bi->height)};
+   }
+ 
++  if (!opt_disp && layer.bi) {
++    opt_disp = IRect{.left = 0,
++                     .top = 0,
++                     .right = int(layer.bi->width),
++                     .bottom = int(layer.bi->height)};
++  }
++
+   if (!opt_disp || !opt_src) {
+     ALOGE("%s: Invalid display frame or source crop", __func__);
+     return -EINVAL;
+diff --git a/hwc/HwcDisplay.cpp b/hwc/HwcDisplay.cpp
+index 7f3b7ee..ec383fc 100644
+--- a/hwc/HwcDisplay.cpp
++++ b/hwc/HwcDisplay.cpp
+@@ -1097,6 +1097,11 @@ std::optional<AtomicCommitArgs> HwcDisplay::CreateFrameUpdateCommit(
+     a_args.color_matrix = identity_color_matrix_;
+   }
+ 
++  // Do not set DRM CTM on external displays (e.g. DP) where hardware DSPP blocks are not available
++  if (pipeline_->connector && !pipeline_->connector->Get()->IsInternal()) {
++    a_args.color_matrix = nullptr;
++  }
++
+   // CTM with offset cannot be processed by CTM prop
+   if (ctm_has_offset_ && !hwc_->GetResMan().UseColorPipeline()) {
+     a_args.color_matrix = identity_color_matrix_;
+@@ -1447,6 +1452,14 @@ std::optional<LayerData> HwcDisplay::GetModesetLayerData(
+           .fence = {},
+       }),
+       .blend_mode = BufferBlendMode::kNone,
++      .display_frame = DstRectInfo{.i_rect = IRect{.left = 0,
++                                                   .top = 0,
++                                                   .right = int(new_width),
++                                                   .bottom = int(new_height)}},
++      .source_crop = SrcRectInfo{.f_rect = FRect{.left = 0.0F,
++                                                 .top = 0.0F,
++                                                 .right = float(new_width),
++                                                 .bottom = float(new_height)}},
+   });
+ 
+   return modeset_layer->GetLayerData();
