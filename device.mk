@@ -76,8 +76,7 @@ PRODUCT_PACKAGES += \
     android.hardware.power-service.example \
     android.hardware.power.stats-service.example \
     com.android.hardware.thermal \
-    android.hardware.health-service.example \
-    suspend_blocker
+    android.hardware.health-service.example
 
 # Lights HAL
 PRODUCT_PACKAGES += \

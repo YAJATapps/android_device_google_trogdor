@@ -126,12 +126,6 @@ service wpa_supplicant /vendor/bin/hw/wpa_supplicant \
     oneshot
     user root
 
-# TODO: disable this service once we implement system suspend
-service suspend_blocker /vendor/bin/suspend_blocker
-    class early_hal # Start together with system_suspend HAL
-    group system
-    user root
-
 service expand_userdata /system/bin/sh /vendor/bin/expand_userdata.sh
     class core
     user root

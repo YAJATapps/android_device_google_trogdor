@@ -62,7 +62,6 @@
 /vendor/bin/qrtr-ns									u:object_r:qrtr_exec:s0
 /vendor/bin/rmtfs									u:object_r:rmtfs_exec:s0
 /vendor/bin/tqftpserv									u:object_r:tqftpserv_exec:s0
-/vendor/bin/suspend_blocker								u:object_r:suspend_blocker_exec:s0
 /vendor/bin/set_bdaddr\.sh								u:object_r:set_bdaddr_exec:s0
 /vendor/bin/set_ethaddr\.sh								u:object_r:set_ethaddr_exec:s0
 /vendor/bin/set_hw\.sh									u:object_r:set_hw_exec:s0
