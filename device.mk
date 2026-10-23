@@ -158,9 +158,10 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_VENDOR_PROPERTIES += \
     ro.hardware.audio.tinyalsa.period_count=2 \
-    ro.hardware.audio.tinyalsa.period_size_multiplier=3
-
-PRODUCT_VENDOR_PROPERTIES += media.c2.hal.selection=aidl
+    ro.hardware.audio.tinyalsa.period_size_multiplier=3 \
+    media.c2.hal.selection=aidl \
+    debug.c2.use_dmabufheaps=1 \
+    debug.stagefright.c2inputsurface=-1
 
 USE_XML_AUDIO_POLICY_CONF := 1
 PRODUCT_COPY_FILES += \
@@ -185,9 +186,8 @@ PRODUCT_COPY_FILES += \
 # Media codecs & profiles
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/etc/media_codecs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml \
-    frameworks/av/media/libeffects/data/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_audio.xml
+    $(DEVICE_PATH)/etc/media_codecs_performance.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_performance.xml \
+    frameworks/av/media/libeffects/data/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml
 
 # Camera (External USB)
 PRODUCT_PACKAGES += \
