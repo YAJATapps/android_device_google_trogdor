@@ -81,4 +81,7 @@
         <item>7</item>
     </integer-array>
 
+    <!-- Enable Desktop Mode on external DisplayPort displays -->
+    <bool name="config_isDesktopModeSupported">true</bool>
+
 </resources>
