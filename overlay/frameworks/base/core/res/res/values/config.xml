@@ -27,8 +27,10 @@
     <!-- This device does not allow sms service. -->
     <bool name="config_sms_capable">false</bool>
 
-    <!-- Separate software navigation bar required on this device. -->
+    <!-- Enable the software navigation bar, including gesture navigation and its mode picker. -->
     <bool name="config_showNavigationBar">true</bool>
+    <!-- Start in gesture mode; Settings and SetupWizard can switch navigation modes. -->
+    <integer name="config_navBarInteractionMode">2</integer>
 
     <!-- Sleep when the keyboard/display lid is closed and wake when it is opened. -->
     <bool name="config_lidControlsSleep">true</bool>
