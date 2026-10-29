@@ -86,18 +86,12 @@
     <!-- Enable Desktop Mode on external DisplayPort displays -->
     <bool name="config_isDesktopModeSupported">true</bool>
 
-    <!-- ============================================================ -->
-    <!-- Doze / Deep Idle fix: trogdor has no Significant Motion      -->
-    <!-- Detector (cros-ec-accel does not expose an SMD interrupt), so -->
-    <!-- Android stays in Light Doze forever by default.              -->
-    <!-- config_autoPowerModeAnyMotionSensor is omitted: its default  -->
-    <!-- is 0 (integer), which already means "no specific sensor",    -->
-    <!-- producing the same mMotionSensor=null result we need.        -->
-    <!-- ============================================================ -->
+    <!-- Trogdor has no significant-motion sensor. Allow DeviceIdleController
+         to enter deep idle using its inactivity timers without motion checks.
+         Movement alone will not wake the device from deep idle. -->
+    <bool name="config_autoPowerModeUseMotionSensor">false</bool>
 
-    <!-- Enter deep doze immediately after the screen turns off instead
-         of waiting for the "stationary" sensing window to expire.
-         Default upstream value is false; must be true here.          -->
+    <!-- This controls doze-component startup timing, not deep-idle entry. -->
     <bool name="config_dozeAfterScreenOffByDefault">true</bool>
 
 </resources>
