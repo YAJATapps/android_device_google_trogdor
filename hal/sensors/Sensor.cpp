@@ -93,14 +93,16 @@ void HWSensorBase::batch(int32_t samplingPeriodNs) {
     }
     if (mSamplingPeriodNs != samplingPeriodNs) {
         mSamplingPeriodNs = samplingPeriodNs;
-        double sampling_frequency = static_cast<double>(ns_to_frequency(samplingPeriodNs));
-        if (sampling_frequency < 20.0) {
-            sampling_frequency = 20.0;
+        if (mIsEnabled) {
+            double sampling_frequency = static_cast<double>(ns_to_frequency(samplingPeriodNs));
+            if (sampling_frequency < 20.0) {
+                sampling_frequency = 20.0;
+            }
+            if (sampling_frequency > 200.0) {
+                sampling_frequency = 200.0;
+            }
+            set_sampling_frequency(mIioData.sysfspath, sampling_frequency);
         }
-        if (sampling_frequency > 200.0) {
-            sampling_frequency = 200.0;
-        }
-        set_sampling_frequency(mIioData.sysfspath, sampling_frequency);
         // Wake up the 'run' thread to check if a new event should be generated now
         mSensorThread.notifyAll();
     }
@@ -127,8 +129,24 @@ void HWSensorBase::activate(bool enable) {
     std::unique_lock<std::mutex> lock(mSensorThread.lock());
     if (mIsEnabled != enable) {
         mIsEnabled = enable;
-        enable_sensor(mIioData.sysfspath, enable);
-        if (enable) sendAdditionalInfoReport();
+        if (enable) {
+            enable_sensor(mIioData.sysfspath, true);
+            double sampling_frequency = 25.0;
+            if (mSamplingPeriodNs > 0) {
+                sampling_frequency = static_cast<double>(ns_to_frequency(mSamplingPeriodNs));
+            }
+            if (sampling_frequency < 20.0) {
+                sampling_frequency = 20.0;
+            }
+            if (sampling_frequency > 200.0) {
+                sampling_frequency = 200.0;
+            }
+            set_sampling_frequency(mIioData.sysfspath, sampling_frequency);
+            sendAdditionalInfoReport();
+        } else {
+            set_sampling_frequency(mIioData.sysfspath, 0.0);
+            enable_sensor(mIioData.sysfspath, false);
+        }
         mSensorThread.notifyAll();
     }
 }

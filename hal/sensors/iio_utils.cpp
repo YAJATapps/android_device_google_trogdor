@@ -241,9 +241,11 @@ int set_sampling_frequency(const std::string& device_dir, const double frequency
             ret = sysfs_write_double(filename, frequency);
         }
     }
-    double timeout = frequency > 0 ? (1.0 / frequency) : 0.04;
-    if (timeout > 0.05) timeout = 0.05;
-    sysfs_write_double(device_dir + "/buffer/hwfifo_timeout", timeout);
+    if (frequency > 0) {
+        double timeout = 1.0 / frequency;
+        if (timeout > 0.05) timeout = 0.05;
+        sysfs_write_double(device_dir + "/buffer/hwfifo_timeout", timeout);
+    }
     return ret;
 }
 
