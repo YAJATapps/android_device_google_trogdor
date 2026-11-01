@@ -1,5 +1,5 @@
 diff --git a/init/first_stage_init.cpp b/init/first_stage_init.cpp
-index 8b9469906..0d452e140 100644
+index 8b9469906..8a3b83865 100644
 --- a/init/first_stage_init.cpp
 +++ b/init/first_stage_init.cpp
 @@ -20,6 +20,7 @@
@@ -113,7 +113,7 @@ index 8b9469906..0d452e140 100644
  static void MaybeResumeFromHibernation(const std::string& bootconfig) {
      std::string hibernationResumeDevice;
      android::fs_mgr::GetBootconfigFromString(bootconfig, "androidboot.hibernation_resume_device",
-@@ -521,7 +611,21 @@ int FirstStageMain(int argc, char** argv) {
+@@ -521,7 +611,29 @@ int FirstStageMain(int argc, char** argv) {
          setenv("INIT_FORCE_DEBUGGABLE", "true", 1);
      }
  
@@ -132,11 +132,19 @@ index 8b9469906..0d452e140 100644
 +    force_normal_boot = command != "boot-recovery" && command != "boot-fastboot";
 +    LOG(INFO) << "BCB command: " << command;
 +
++    // Recovery draws its UI straight to the framebuffer, so kernel messages on
++    // console=tty0 would overwrite it. Quiet the console for recovery and
++    // fastbootd only; normal boot keeps the verbose console.
++    if (!force_normal_boot &&
++        !android::base::WriteStringToFile("1", "/proc/sys/kernel/printk")) {
++        PLOG(WARNING) << "Failed to quiet the recovery console";
++    }
++
 +    if (force_normal_boot) {
          mkdir("/first_stage_ramdisk", 0755);
          PrepareSwitchRoot();
          // SwitchRoot() must be called with a mount point as the target, so we bind mount the
-@@ -532,7 +636,7 @@ int FirstStageMain(int argc, char** argv) {
+@@ -532,7 +644,7 @@ int FirstStageMain(int argc, char** argv) {
          SwitchRoot("/first_stage_ramdisk");
      }
  
