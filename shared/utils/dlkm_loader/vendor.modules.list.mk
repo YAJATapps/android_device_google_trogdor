@@ -82,6 +82,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     elan_i2c.ko \
     elants_i2c.ko \
     goodix_ts.ko \
+    hid-apple.ko \
     hid-google-hammer.ko \
     hid-multitouch.ko \
     hid-vivaldi.ko \
