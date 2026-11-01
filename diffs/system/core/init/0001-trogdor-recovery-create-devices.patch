@@ -1,0 +1,147 @@
+diff --git a/init/first_stage_init.cpp b/init/first_stage_init.cpp
+index 8b9469906..0d452e140 100644
+--- a/init/first_stage_init.cpp
++++ b/init/first_stage_init.cpp
+@@ -20,6 +20,7 @@
+ #include <fcntl.h>
+ #include <paths.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include <sys/mount.h>
+ #include <sys/stat.h>
+ #include <sys/sysmacros.h>
+@@ -38,6 +39,7 @@
+ #include <android-base/logging.h>
+ #include <android-base/stringify.h>
+ #include <android-base/stringprintf.h>
++#include <android-base/strings.h>
+ #include <android/avf_cc_flags.h>
+ #include <fs_mgr.h>
+ #include <modprobe/modprobe.h>
+@@ -309,6 +311,94 @@ static BootMode GetBootMode(const std::string& cmdline, const std::string& bootc
+     return BootMode::NORMAL_MODE;
+ }
+ 
++static std::string ReadMiscCommand() {
++    int fd = open("/dev/block/by-name/misc", O_RDONLY | O_CLOEXEC);
++    if (fd == -1) return "";
++    char command[32] = {};
++    ssize_t size = read(fd, command, sizeof(command));
++    close(fd);
++    if (size != sizeof(command)) return "";
++    return std::string(command, strnlen(command, sizeof(command)));
++}
++
++static std::string ReadSysFile(const std::string& path) {
++    std::string value;
++    android::base::ReadFileToString(path, &value);
++    return value;
++}
++
++static std::string UeventField(const std::string& uevent, const std::string& key) {
++    for (const auto& line : android::base::Split(uevent, "\n")) {
++        if (android::base::StartsWith(line, key + "=")) {
++            return line.substr(key.size() + 1);
++        }
++    }
++    return "";
++}
++
++static void SetupByNames(const std::string& cmdline) {
++    static constexpr const char kBootUuid[] = "androidboot.boot_part_uuid=";
++    auto pos = cmdline.find(kBootUuid);
++    if (pos == std::string::npos) return;
++    auto end = cmdline.find(' ', pos);
++    std::string uuid = cmdline.substr(pos + strlen(kBootUuid),
++                                      end == std::string::npos ? std::string::npos : end - pos - strlen(kBootUuid));
++    if (uuid.empty()) return;
++
++    std::string boot_dev;
++    for (int attempt = 0; attempt < 50 && boot_dev.empty(); ++attempt) {
++        std::error_code ec;
++        for (fs::directory_iterator it("/sys/class/block", ec), last; !ec && it != last;
++             it.increment(ec)) {
++            auto uevent = ReadSysFile((it->path() / "uevent").string());
++            if (UeventField(uevent, "PARTUUID") == uuid) {
++                boot_dev = UeventField(uevent, "DEVNAME");
++                break;
++            }
++        }
++        if (boot_dev.empty()) usleep(100000);
++    }
++    if (boot_dev.empty()) return;
++
++    std::error_code ec;
++
++    auto boot_path = fs::canonical(fs::path("/sys/class/block") / boot_dev, ec);
++    if (ec) return;
++    std::string disk = boot_path.parent_path().filename().string();
++    if (disk.empty()) return;
++
++    mkdir("/dev/block", 0755);
++    mkdir("/dev/block/by-name", 0755);
++
++    for (fs::directory_iterator it("/sys/class/block", ec), last; !ec && it != last; it.increment(ec)) {
++        auto part_path = fs::canonical(it->path(), ec);
++        if (ec) {
++            ec.clear();
++            continue;
++        }
++        if (part_path.parent_path().filename() != disk) continue;
++
++        auto uevent = ReadSysFile((it->path() / "uevent").string());
++        auto name = UeventField(uevent, "PARTNAME");
++        auto dev = UeventField(uevent, "DEVNAME");
++        if (name.empty() || dev.empty()) continue;
++
++        std::string devnode = "/dev/block/" + dev;
++        struct stat st {};
++        if (stat(devnode.c_str(), &st) != 0) {
++            auto devnum = ReadSysFile((it->path() / "dev").string());
++            unsigned int major = 0, minor = 0;
++            if (sscanf(devnum.c_str(), "%u:%u", &major, &minor) == 2) {
++                mknod(devnode.c_str(), S_IFBLK | 0600, makedev(major, minor));
++            }
++        }
++
++        std::string link = "/dev/block/by-name/" + name;
++        unlink(link.c_str());
++        symlink(devnode.c_str(), link.c_str());
++    }
++}
++
+ static void MaybeResumeFromHibernation(const std::string& bootconfig) {
+     std::string hibernationResumeDevice;
+     android::fs_mgr::GetBootconfigFromString(bootconfig, "androidboot.hibernation_resume_device",
+@@ -521,7 +611,21 @@ int FirstStageMain(int argc, char** argv) {
+         setenv("INIT_FORCE_DEBUGGABLE", "true", 1);
+     }
+ 
+-    if (ForceNormalBoot(cmdline, bootconfig)) {
++    bool force_normal_boot = ForceNormalBoot(cmdline, bootconfig);
++
++    if (IsRecoveryMode()) {
++        // Recovery skips first-stage mount. Build the by-name links directly
++        // from the boot partition UUID so recovery's fstab can resolve them.
++        SetupByNames(cmdline);
++    }
++
++    // Depthcharge does not read the Android BCB. Decide here whether this is
++    // a recovery boot or a normal boot.
++    std::string command = ReadMiscCommand();
++    force_normal_boot = command != "boot-recovery" && command != "boot-fastboot";
++    LOG(INFO) << "BCB command: " << command;
++
++    if (force_normal_boot) {
+         mkdir("/first_stage_ramdisk", 0755);
+         PrepareSwitchRoot();
+         // SwitchRoot() must be called with a mount point as the target, so we bind mount the
+@@ -532,7 +636,7 @@ int FirstStageMain(int argc, char** argv) {
+         SwitchRoot("/first_stage_ramdisk");
+     }
+ 
+-    if (IsRecoveryMode()) {
++    if (IsRecoveryMode() && !force_normal_boot) {
+         LOG(INFO) << "First stage mount skipped (recovery mode)";
+     } else {
+         if (!fsm) {

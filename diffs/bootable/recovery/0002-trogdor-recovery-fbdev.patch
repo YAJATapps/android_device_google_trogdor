@@ -1,0 +1,17 @@
+diff --git a/minui/graphics.cpp b/minui/graphics.cpp
+index d94d2f32..eb81a9b8 100644
+--- a/minui/graphics.cpp
++++ b/minui/graphics.cpp
+@@ -44,9 +44,9 @@ static GRSurface* gr_draw = nullptr;
+ static GRRotation rotation = GRRotation::NONE;
+ static GRRotation touch_rotation = GRRotation::NONE;
+ static PixelFormat pixel_format = PixelFormat::UNKNOWN;
+-// The graphics backend list that provides fallback options for the default backend selection.
+-// For example, it will fist try DRM, then try FBDEV if DRM is unavailable.
+-constexpr auto default_backends = { GraphicsBackend::DRM, GraphicsBackend::FBDEV };
++// Trogdor's recovery DRM path hands minui an invalid surface. Use the
++// kernel's DRM fbdev emulation instead.
++constexpr auto default_backends = { GraphicsBackend::FBDEV };
+ 
+ static bool outside(int x, int y) {
+   auto swapped = (rotation == GRRotation::LEFT || rotation == GRRotation::RIGHT);

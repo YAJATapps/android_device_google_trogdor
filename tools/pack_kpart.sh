@@ -28,7 +28,7 @@ echo "--> Compressing kernel Image with LZ4..."
 # 2. Copy all Trogdor board DTBs (all 47 SKUs/variants) and Ramdisk
 echo "--> Copying all Trogdor device trees and ramdisk..."
 cp "$DTS_DIR"/sc7180-trogdor*.dtb "$WORK_DIR/"
-cp "$PRODUCT_OUT/ramdisk.img" "$WORK_DIR/ramdisk.img"
+cp "$PRODUCT_OUT/ramdisk-recovery.img" "$WORK_DIR/ramdisk.img"
 
 # 3. Create cmdline (with verbose tty0 console)
 echo "earlycon console=tty0 loglevel=7 firmware_class.path=/vendor/firmware,/vendor/firmware/qcom init=/init printk.devkmsg=on deferred_probe_timeout=30 androidboot.boot_part_uuid=%U androidboot.hardware=trogdor androidboot.verifiedbootstate=orange androidboot.slot_suffix=_a androidboot.selinux=permissive" > "$WORK_DIR/cmdline"

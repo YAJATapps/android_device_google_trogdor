@@ -129,7 +129,7 @@ if [ ! -f "$MAKE_F2FS" ]; then
 fi
 
 # 2. Build or verify vmlinuz.kpart
-if [ ! -f "$VMLINUZ_KPART" ] || [ "$VMLINUZ_KPART" -ot "$PRODUCT_OUT/kernel" ]; then
+if [ ! -f "$VMLINUZ_KPART" ] || [ "$VMLINUZ_KPART" -ot "$PRODUCT_OUT/kernel" ] || [ "$VMLINUZ_KPART" -ot "$PRODUCT_OUT/ramdisk-recovery.img" ]; then
     echo "[*] Packaging ChromeOS Depthcharge kernel (vmlinuz.kpart)..."
     "$SCRIPT_DIR/pack_kpart.sh"
 fi
