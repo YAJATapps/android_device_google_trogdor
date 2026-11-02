@@ -51,6 +51,9 @@ BOARD_KERNEL_CMDLINE += androidboot.hardware=trogdor
 BOARD_KERNEL_CMDLINE += androidboot.verifiedbootstate=orange
 BOARD_KERNEL_CMDLINE += androidboot.slot_suffix=_a
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+# Advertise KVM-backed unprotected VMs; protected VMs are not supported.
+BOARD_KERNEL_CMDLINE += androidboot.hypervisor.vm.supported=true
+BOARD_KERNEL_CMDLINE += androidboot.hypervisor.protected_vm.supported=false
 
 # File systems & Partitions
 # GApps install into system/product/system_ext at runtime, so those three must

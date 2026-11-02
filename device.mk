@@ -22,6 +22,11 @@ $(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-he
 # Enable updating of APEXes
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
+# Android Virtualization Framework
+$(call inherit-product, packages/modules/Virtualization/build/apex/product_packages.mk)
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.avf.terminal.force_unprotected_vm=true
+
 # Enable Scoped Storage
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 

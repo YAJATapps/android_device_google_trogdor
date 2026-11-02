@@ -90,6 +90,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     i2c-hid.ko \
     i2c-hid-of.ko \
     i2c-hid-of-goodix.ko \
+    ip6t_rpfilter.ko \
     libphy.ko \
     mii.ko \
     usbnet.ko \
