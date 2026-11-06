@@ -16,7 +16,10 @@
 
 # Curated kernel modules list for Google Trogdor (SC7180)
 # Boot-critical drivers (DRM MSM display, GPU, eMMC, clocks, regulators, PMIC, Binder)
-# are built directly into the kernel (=y). Only loadable accessory modules are listed here.
+# are built directly into the kernel (=y). Loadable platform and accessory drivers
+# are listed here; modprobe loads their dependencies from modules.dep.
+# BWMON and Venus must bind so interconnect and RPMh providers can complete
+# sync_state() and release their boot-time bandwidth and voltage floors for sleep.
 
 VENDOR_DLKM_KERNEL_MODULES_LIST := \
     ath.ko \
@@ -38,6 +41,7 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     gpio-wcd934x.ko \
     hci_uart.ko \
     i2c-qcom-cci.ko \
+    icc-bwmon.ko \
     leds-cros_ec.ko \
     leds-qcom-lpg.ko \
     phy-qcom-edp.ko \
@@ -114,6 +118,9 @@ VENDOR_DLKM_KERNEL_MODULES_LIST := \
     videodev.ko \
     videobuf2-v4l2.ko \
     videobuf2-memops.ko \
+    venus-core.ko \
+    venus-dec.ko \
+    venus-enc.ko \
     uvc.ko \
     videobuf2-vmalloc.ko \
     uvcvideo.ko
