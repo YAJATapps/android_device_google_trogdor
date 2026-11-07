@@ -29,6 +29,9 @@ on boot
     # Keep configfs=0 so the USB HAL never enters the gadget path and
     # does not spin retrying an empty sys.usb.controller every second.
     setprop sys.usb.configfs 0
+    # Pause adbd's USB gadget retries on this host-only controller.
+    # The platform init rule forwards this to adbd; TCP ADB stays available.
+    setprop vendor.sys.usb.adb.disabled 1
     setprop sys.usb.ffs.aio_compat 1
     symlink /config/usb_gadget/g1/configs/b.1 /config/usb_gadget/g1/os_desc/b.1
 
