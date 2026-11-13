@@ -15,6 +15,8 @@ on post-fs
 
 on property:vendor.hw=homestar
     mount none /vendor/etc/audio_policy_configuration_homestar.xml /vendor/etc/audio_policy_configuration.xml bind
+    # Quad MAX98360A speaker PCM needs [L,L,R,R] channel order and half-size periods
+    setprop vendor.audio.tinyalsa.quad_speaker_compat 1
 
 on late-fs
     mount_all /vendor/etc/fstab.${ro.hardware} --late

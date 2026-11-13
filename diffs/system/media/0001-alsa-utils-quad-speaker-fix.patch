@@ -1,0 +1,78 @@
+diff --git a/alsa_utils/alsa_device_profile.c b/alsa_utils/alsa_device_profile.c
+index f47ee095..2873396d 100644
+--- a/alsa_utils/alsa_device_profile.c
++++ b/alsa_utils/alsa_device_profile.c
+@@ -451,8 +451,18 @@ bool profile_fill_builtin_device_info(alsa_device_profile* profile, struct pcm_c
+     int period_size_multiplier = property_get_int32(
+             "ro.hardware.audio.tinyalsa.period_size_multiplier", 1);
+     if (period_size_multiplier <= 0) period_size_multiplier = 1;
++    // Devices with a quad-channel speaker arrangement driven by a single PCM
++    // (e.g. the four MAX98360A amplifiers on trogdor homestar) accept only
++    // periods of half the stereo size; scale the computed period by the
++    // channel count to stay within the kernel's constraints. The device tree
++    // enables this at boot only on affected devices.
++    int period_divisor = period_count;
++    if (config->channels > 2 &&
++        property_get_bool("vendor.audio.tinyalsa.quad_speaker_compat", false)) {
++        period_divisor = period_count * config->channels / 2;
++    }
+     profile->default_config.period_size =
+-            period_size_multiplier * buffer_frame_count / period_count;
++            period_size_multiplier * buffer_frame_count / period_divisor;
+     profile->min_period_size = profile->max_period_size = profile->default_config.period_size;
+     profile->formats[0] = config->format;
+     profile->formats[1] = PCM_FORMAT_INVALID;
+diff --git a/alsa_utils/alsa_device_proxy.c b/alsa_utils/alsa_device_proxy.c
+index 434914a6..7609ccd0 100644
+--- a/alsa_utils/alsa_device_proxy.c
++++ b/alsa_utils/alsa_device_proxy.c
+@@ -25,6 +25,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
++#include <cutils/properties.h>
+ #include <audio_utils/clock.h>
+ 
+ #include "include/alsa_device_proxy.h"
+@@ -322,9 +323,41 @@ int proxy_write(alsa_device_proxy * proxy, const void *data, unsigned int count)
+     return proxy_write_with_retries(proxy, data, count, 1);
+ }
+ 
++/*
++ * Devices with a quad-channel speaker arrangement driven by a single PCM
++ * (e.g. the four MAX98360A amplifiers on trogdor homestar) expect the quad
++ * stream as [L, L, R, R] (top-left, bottom-left, top-right, bottom-right),
++ * while AudioFlinger delivers [L, R, x, x]. Expand each stereo pair in place
++ * before it reaches the PCM. Applies to S16 quad streams only, and only when
++ * the device enables vendor.audio.tinyalsa.quad_speaker_compat at boot.
++ */
++static bool proxy_needs_quad_remap(const alsa_device_proxy * proxy)
++{
++    return proxy->alsa_config.channels == 4 &&
++           proxy->alsa_config.format == PCM_FORMAT_S16_LE &&
++           property_get_bool("vendor.audio.tinyalsa.quad_speaker_compat", false);
++}
++
++static void remap_quad_stereo_in_place(void * data, unsigned int count)
++{
++    int16_t * frames = (int16_t *)data;
++    const unsigned int frame_count = count / (4 * sizeof(int16_t));
++    for (unsigned int i = 0; i < frame_count; ++i) {
++        const int16_t left = frames[4 * i];
++        const int16_t right = frames[4 * i + 1];
++        frames[4 * i + 1] = left;
++        frames[4 * i + 2] = right;
++        frames[4 * i + 3] = right;
++    }
++}
++
+ int proxy_write_with_retries(
+         alsa_device_proxy * proxy, const void *data, unsigned int count, int tries)
+ {
++    // Remap before the retry loop so a retried write is not remapped twice.
++    if (proxy_needs_quad_remap(proxy)) {
++        remap_quad_stereo_in_place((void *)(uintptr_t)data, count);
++    }
+     while (true) {
+         --tries;
+         const int ret = pcm_write(proxy->pcm, data, count);
